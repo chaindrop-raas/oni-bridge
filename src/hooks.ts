@@ -22,7 +22,7 @@ import {
   rollupConfig,
   token,
 } from "./config";
-import { getWithdrawals } from "viem/op-stack";
+import { getWithdrawalStatus, getWithdrawals } from "viem/op-stack";
 import { erc20Abi } from "./abi";
 
 export const useIsParentChain = () => {
@@ -92,7 +92,6 @@ export const useTimeToProve = (initiatingHash: Hex) => {
         targetChain: rollupChain,
       });
       if (timestamp) {
-        console.log({ timestamp });
         setTimeToProveDeadline(timestamp);
       }
     };
@@ -188,6 +187,34 @@ export const useTimeToFinalize = (initiatingHash: Hex) => {
   return timeToFinalize;
 };
 
+type StatusReturnType =
+  | Awaited<ReturnType<typeof getWithdrawalStatus>>
+  | "retrieving-status";
+
+export const useGetWithdrawalStatus = (
+  transaction: WaitForTransactionReceiptReturnType
+): {
+  isLoading: boolean;
+  status: StatusReturnType;
+} => {
+  const [status, setStatus] = useState<StatusReturnType>("retrieving-status");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      const withdrawalStatus = await parentClient.getWithdrawalStatus({
+        receipt: transaction,
+        targetChain: rollupChain,
+      });
+      setStatus(withdrawalStatus);
+      setIsLoading(false);
+    };
+    fetchStatus();
+  }, [transaction]);
+
+  return { isLoading, status };
+};
+
 export const useTransactionStorage = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const serializer = (value: any) =>
@@ -210,8 +237,6 @@ export const useTransactionStorage = () => {
   const addTransaction = (transaction: WaitForTransactionReceiptReturnType) => {
     setTransactions([transaction, ...transactions]);
   };
-
-  console.log({ transactions });
 
   return { transactions, addTransaction };
 };

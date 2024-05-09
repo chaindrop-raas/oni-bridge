@@ -8,20 +8,13 @@ import { useAccount, useWalletClient } from "wagmi";
 
 import { rollupClient } from "./config";
 import { Balance } from "./components/Balance";
-import { TransactionList } from "./components/TransactionList";
+import { TransactionListItem } from "./components/TransactionListItem";
 import { approvalTransaction, depositTransaction } from "./txs/deposit";
+import { initiateWithdrawal } from "./txs/withdraw";
 import {
-  finalizeWithdrawal,
-  initiateWithdrawal,
-  proveWithdrawal,
-} from "./txs/withdraw";
-import {
-  useCountdown,
   useCurrentChainBalance,
   useGetAllowance,
   useIsParentChain,
-  useTimeToFinalize,
-  useTimeToProve,
   useTransactionStorage,
 } from "./hooks";
 import { formatBalance } from "./utils";
@@ -49,16 +42,6 @@ function App() {
   const [isApproved, setApproved] = useState(false);
   const [actionButtonDisabled, setActionButtonDisabled] = useState(false);
   const { transactions, addTransaction } = useTransactionStorage();
-
-  const timeToProve = useTimeToProve(
-    "0x69b1aeeb945cb4237e4d88337dac6463b4c3d60b9127e8070c9abe6ed6e5f578"
-  );
-  const timeLeftToProve = useCountdown(timeToProve);
-
-  const timeToFinalize = useTimeToFinalize(
-    "0x69b1aeeb945cb4237e4d88337dac6463b4c3d60b9127e8070c9abe6ed6e5f578"
-  );
-  const timeLeftToFinalize = useCountdown(timeToFinalize);
 
   const onSubmit: SubmitHandler<Inputs> = async ({ amount: etherAmount }) => {
     const submittedAmount = parseEther(etherAmount.toString());
@@ -107,15 +90,6 @@ function App() {
       </div>
       <div className="mx-auto max-w-96 flex flex-col gap-4">
         <h1 className="text-3xl font-bold">{rollupClient.chain.name} Bridge</h1>
-        <p className="text-sm text-gray-500">
-          Time until provable: {timeLeftToProve.days}d {timeLeftToProve.hours}h{" "}
-          {timeLeftToProve.minutes}m {timeLeftToProve.seconds}s
-        </p>
-        <p className="text-sm text-gray-500">
-          Time until finalizable: {timeLeftToFinalize.days}d{" "}
-          {timeLeftToFinalize.hours}h {timeLeftToFinalize.minutes}m{" "}
-          {timeLeftToFinalize.seconds}s
-        </p>
         <form
           className="flex flex-col gap-2 px-4 pt-2 pb-4 border border-gray-300 rounded-md"
           onSubmit={handleSubmit(onSubmit)}
@@ -184,35 +158,18 @@ function App() {
             {isParentChain ? (isApproved ? "Deposit" : "Approve") : "Withdraw"}
           </button>
         </form>
-        <button
-          onClick={async () => {
-            if (!walletClient) return;
-            const extendedClient = walletClient.extend(walletActionsL1());
-            proveWithdrawal(
-              "0x69b1aeeb945cb4237e4d88337dac6463b4c3d60b9127e8070c9abe6ed6e5f578",
-              extendedClient
-            );
-          }}
-          className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-        >
-          prove
-        </button>
-        <button
-          onClick={async () => {
-            if (!walletClient) return;
-            const extendedClient = walletClient.extend(walletActionsL1());
-            finalizeWithdrawal(
-              "0x69b1aeeb945cb4237e4d88337dac6463b4c3d60b9127e8070c9abe6ed6e5f578",
-              extendedClient
-            );
-          }}
-          className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-        >
-          finalize
-        </button>
       </div>
       <div className="w-full max-w-96 m-auto">
-        <TransactionList transactions={transactions} />
+        <ul role="list" className="divide-y divide-gray-100">
+          {transactions.map((transaction) => (
+            <li
+              key={transaction.transactionHash}
+              className="w-full flex flex-row gap-2 py-2 text-sm"
+            >
+              <TransactionListItem transaction={transaction} />
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
