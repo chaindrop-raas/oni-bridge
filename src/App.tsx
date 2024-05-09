@@ -3,7 +3,7 @@ import { toNumber } from "dnum";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { parseEther, WaitForTransactionReceiptReturnType } from "viem";
+import { parseEther } from "viem";
 import { useAccount, useWalletClient } from "wagmi";
 
 import { rollupClient } from "./config";
@@ -22,6 +22,7 @@ import {
   useIsParentChain,
   useTimeToFinalize,
   useTimeToProve,
+  useTransactionStorage,
 } from "./hooks";
 import { formatBalance } from "./utils";
 import { walletActionsL1, walletActionsL2 } from "viem/op-stack";
@@ -47,9 +48,7 @@ function App() {
   const allowance = useGetAllowance(walletClient, amount);
   const [isApproved, setApproved] = useState(false);
   const [actionButtonDisabled, setActionButtonDisabled] = useState(false);
-  const [transactions, setTransactions] = useState<
-    WaitForTransactionReceiptReturnType[]
-  >([]);
+  const { transactions, addTransaction } = useTransactionStorage();
 
   const timeToProve = useTimeToProve(
     "0x69b1aeeb945cb4237e4d88337dac6463b4c3d60b9127e8070c9abe6ed6e5f578"
@@ -72,13 +71,13 @@ function App() {
           l1WalletClient,
           submittedAmount
         );
-        setTransactions((transactions) => [transaction, ...transactions]);
+        addTransaction(transaction);
       } else {
         const transaction = await approvalTransaction(
           l1WalletClient,
           submittedAmount
         );
-        setTransactions((transactions) => [transaction, ...transactions]);
+        addTransaction(transaction);
       }
     } else {
       const l2WalletClient = walletClient.extend(walletActionsL2());
@@ -86,7 +85,7 @@ function App() {
         submittedAmount,
         l2WalletClient
       );
-      setTransactions((transactions) => [transaction, ...transactions]);
+      addTransaction(transaction);
     }
     setActionButtonDisabled(false);
   };

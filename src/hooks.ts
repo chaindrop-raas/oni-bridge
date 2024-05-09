@@ -1,15 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  UseWalletClientReturnType,
   useAccount,
   useBalance,
   useBlockNumber,
   useChainId,
   useReadContract,
   useTransactionReceipt,
+  type UseWalletClientReturnType,
 } from "wagmi";
-import { Hex, toHex } from "viem";
+import {
+  toHex,
+  type Hex,
+  type WaitForTransactionReceiptReturnType,
+} from "viem";
 import { useQueryClient } from "@tanstack/react-query";
+import { useLocalStorage } from "usehooks-ts";
 import {
   optimismPortal,
   parentClient,
@@ -17,8 +22,8 @@ import {
   rollupConfig,
   token,
 } from "./config";
-import { erc20Abi } from "./abi";
 import { getWithdrawals } from "viem/op-stack";
+import { erc20Abi } from "./abi";
 
 export const useIsParentChain = () => {
   const chainId = useChainId();
@@ -181,4 +186,32 @@ export const useTimeToFinalize = (initiatingHash: Hex) => {
   }, [receipt, isLoading]);
 
   return timeToFinalize;
+};
+
+export const useTransactionStorage = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const serializer = (value: any) =>
+    JSON.stringify(value, (_, val) =>
+      typeof val === "bigint" ? val.toString() + "n" : val
+    );
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const deserializer = (value: any) =>
+    JSON.parse(value, (_, val) =>
+      typeof val === "string" && val.endsWith("n")
+        ? BigInt(val.slice(0, -1))
+        : val
+    );
+
+  const [transactions, setTransactions] = useLocalStorage<
+    WaitForTransactionReceiptReturnType[]
+  >("transactions", [], { serializer, deserializer });
+
+  const addTransaction = (transaction: WaitForTransactionReceiptReturnType) => {
+    setTransactions([transaction, ...transactions]);
+  };
+
+  console.log({ transactions });
+
+  return { transactions, addTransaction };
 };
