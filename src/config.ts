@@ -82,6 +82,8 @@ export const rollupChain = defineChain({
       },
     },
   },
+  iconBackground: import.meta.env.VITE_L2_ICON_BACKGROUND_COLOR,
+  iconUrl: import.meta.env.VITE_L2_ICON_URL,
 });
 
 // const connectors = connectorsForWallets(
@@ -98,7 +100,7 @@ export const rollupChain = defineChain({
 // );
 
 export const parentClient = createPublicClient({
-  chain: baseSepolia,
+  chain: parentChain,
   transport: http(),
 }).extend(publicActionsL1()) as PublicL1ClientWithChain;
 

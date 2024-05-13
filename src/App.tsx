@@ -83,10 +83,7 @@ function App() {
   return (
     <div className="flex flex-col gap-6 my-6 items-end">
       <div className="mr-6">
-        <ConnectButton
-          showBalance={false}
-          chainStatus={{ smallScreen: "icon", largeScreen: "icon" }}
-        />
+        <ConnectButton chainStatus="icon" showBalance={false} />
       </div>
       <div className="mx-auto max-w-96 flex flex-col gap-4">
         <h1 className="text-3xl font-bold">{rollupClient.chain.name} Bridge</h1>
