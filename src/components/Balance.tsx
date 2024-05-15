@@ -10,7 +10,7 @@ export const Balance = ({
     return null;
   }
   return (
-    <p className="text-sm text-right">
+    <p className="text-sm font-normal">
       Balance: {formatBalance(amount.value, amount.decimals)} {amount.symbol}
     </p>
   );

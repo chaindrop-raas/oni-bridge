@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   readonly VITE_L1_CUSTOM_GAS_TOKEN_SYMBOL: string;
   readonly VITE_L1_CUSTOM_GAS_TOKEN_DECIMALS: number;
   readonly VITE_L1_CHAIN_ID: number;
+  readonly VITE_L1_ICON_URL: string;
+  readonly VITE_L1_ICON_BACKGROUND_COLOR: string;
 
   readonly VITE_L2_CHAIN_ID: number;
   readonly VITE_L2_CHAIN_NAME: string;
@@ -16,6 +18,7 @@ interface ImportMetaEnv {
 
   readonly VITE_L2_ICON_URL: string;
   readonly VITE_L2_ICON_BACKGROUND_COLOR: string;
+  readonly VITE_BRIDGE_LOGO_URL: string;
   readonly VITE_BRIDGE_ACCENT_COLOR: string;
   readonly VITE_BRIDGE_ACCENT_COLOR_DARK: string;
   readonly VITE_BRIDGE_ACCENT_COLOR_FOREGROUND: string;
