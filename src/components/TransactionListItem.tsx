@@ -10,11 +10,7 @@ import {
   token,
   optimismPortal,
 } from "../config";
-import {
-  useGetWithdrawalStatus,
-  useTimeToFinalize,
-  useTimeToProve,
-} from "../hooks";
+import { useGetWithdrawalStatus } from "../hooks";
 import { finalizeWithdrawal, proveWithdrawal } from "../txs/withdraw";
 
 const statusColor = (status: string) => {
@@ -93,11 +89,7 @@ const WithdrawalActions = ({
   transaction: WaitForTransactionReceiptReturnType;
 }) => {
   const { data: walletClient } = useWalletClient();
-  const timeToProve = useTimeToProve(transaction.transactionHash);
-  const timeToFinalize = useTimeToFinalize(transaction.transactionHash);
   const { status } = useGetWithdrawalStatus(transaction);
-
-  console.log({ timeToProve, timeToFinalize, status });
 
   return (
     <>

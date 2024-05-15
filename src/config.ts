@@ -46,7 +46,11 @@ const getChain = (chainId: number) => {
   return detectedChain;
 };
 
-export const parentChain = getChain(Number(import.meta.env.VITE_L1_CHAIN_ID));
+export const parentChain = {
+  ...getChain(Number(import.meta.env.VITE_L1_CHAIN_ID)),
+  iconBackground: import.meta.env.VITE_L1_ICON_BACKGROUND_COLOR,
+  iconUrl: import.meta.env.VITE_L1_ICON_URL,
+};
 
 const rpcUrls: string[] = import.meta.env.VITE_L2_RPC_URLS.split(",");
 
