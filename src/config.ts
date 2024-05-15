@@ -19,6 +19,19 @@ import { erc20Abi, optimismPortalAbi } from "./abi";
 import type { PublicL1ClientWithChain, PublicL2ClientWithChain } from "./types";
 import { chainConfig, publicActionsL1, publicActionsL2 } from "viem/op-stack";
 
+export const uiConfig = {
+  logoUrl: import.meta.env.VITE_BRIDGE_LOGO_URL,
+  accentColor: import.meta.env.VITE_BRIDGE_ACCENT_COLOR,
+  accentColorDark: import.meta.env.VITE_BRIDGE_ACCENT_COLOR_DARK,
+  accentColorForeground: import.meta.env.VITE_BRIDGE_ACCENT_COLOR_FOREGROUND,
+  accentColorForegroundDark: import.meta.env
+    .VITE_BRIDGE_ACCENT_COLOR_FOREGROUND_DARK,
+  l1IconUrl: import.meta.env.VITE_L1_ICON_URL,
+  l1IconBackground: import.meta.env.VITE_L1_ICON_BACKGROUND_COLOR,
+  l2IconUrl: import.meta.env.VITE_L2_ICON_URL,
+  l2IconBackground: import.meta.env.VITE_L2_ICON_BACKGROUND_COLOR,
+};
+
 /**
  * NB: adding custom connectors for wallets relies on WalletConnect.
  * WalletConnect, in turn, shows errors in the console when developing locally.
@@ -48,8 +61,8 @@ const getChain = (chainId: number) => {
 
 export const parentChain = {
   ...getChain(Number(import.meta.env.VITE_L1_CHAIN_ID)),
-  iconBackground: import.meta.env.VITE_L1_ICON_BACKGROUND_COLOR,
-  iconUrl: import.meta.env.VITE_L1_ICON_URL,
+  iconBackground: uiConfig.l1IconBackground,
+  iconUrl: uiConfig.l1IconUrl,
 };
 
 const rpcUrls: string[] = import.meta.env.VITE_L2_RPC_URLS.split(",");
@@ -86,8 +99,8 @@ export const rollupChain = defineChain({
       },
     },
   },
-  iconBackground: import.meta.env.VITE_L2_ICON_BACKGROUND_COLOR,
-  iconUrl: import.meta.env.VITE_L2_ICON_URL,
+  iconBackground: uiConfig.l2IconBackground,
+  iconUrl: uiConfig.l2IconUrl,
 });
 
 // const connectors = connectorsForWallets(

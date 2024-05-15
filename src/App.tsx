@@ -1,12 +1,17 @@
 import { clsx } from "clsx";
 import { toNumber } from "dnum";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { parseEther } from "viem";
 import { useAccount, useWalletClient } from "wagmi";
 
-import { rollupChain, rollupClient } from "./config";
+import {
+  parentChain,
+  rollupChain,
+  rollupClient,
+  uiConfig as ui,
+} from "./config";
 import { Balance } from "./components/Balance";
 import { TransactionListItem } from "./components/TransactionListItem";
 import { approvalTransaction, depositTransaction } from "./txs/deposit";
@@ -14,19 +19,29 @@ import { initiateWithdrawal } from "./txs/withdraw";
 import {
   useCurrentChainBalance,
   useGetAllowance,
-  useIsParentChain,
   useTransactionStorage,
 } from "./hooks";
+import type { BridgeMode, WalletClient } from "./types";
 import { formatBalance } from "./utils";
 import { walletActionsL1, walletActionsL2 } from "viem/op-stack";
 import { BridgeDirection } from "./components/BridgeDirection";
 import { OperationSummary } from "./components/OperationSummary";
+import { ActionButton } from "./components/ActionButton";
 
 type Inputs = {
   amount: bigint;
 };
 
 function App() {
+  const balance = useCurrentChainBalance();
+  const account = useAccount();
+  const { data: walletClient } = useWalletClient();
+
+  const [isApproved, setApproved] = useState(false);
+  const [actionButtonDisabled, setActionButtonDisabled] = useState(false);
+  const [bridgeMode, setBridgeMode] = useState<BridgeMode>("deposit");
+  const { transactions, addTransaction } = useTransactionStorage();
+
   const {
     formState: { errors },
     handleSubmit,
@@ -34,46 +49,63 @@ function App() {
     watch,
   } = useForm<Inputs>({ defaultValues: { amount: 0n } });
   const amount = parseEther(watch("amount").toString());
-
-  const isParentChain = useIsParentChain();
-  const balance = useCurrentChainBalance();
-  const account = useAccount();
-  const { data: walletClient } = useWalletClient();
-
   const allowance = useGetAllowance(walletClient, amount);
-  const [isApproved, setApproved] = useState(false);
-  const [actionButtonDisabled, setActionButtonDisabled] = useState(false);
-  const { transactions, addTransaction } = useTransactionStorage();
+
+  const approvalFn = async (walletClient: WalletClient, amount: bigint) => {
+    const l1WalletClient = walletClient.extend(walletActionsL1());
+    const transaction = await approvalTransaction(l1WalletClient, amount);
+    addTransaction(transaction);
+  };
+
+  const depositFn = async (walletClient: WalletClient, amount: bigint) => {
+    const l1WalletClient = walletClient.extend(walletActionsL1());
+    const transaction = await depositTransaction(l1WalletClient, amount);
+    addTransaction(transaction);
+  };
+
+  const withdrawFn = async (walletClient: WalletClient, amount: bigint) => {
+    const l2WalletClient = walletClient.extend(walletActionsL2());
+    const transaction = await initiateWithdrawal(amount, l2WalletClient);
+    addTransaction(transaction);
+  };
 
   const onSubmit: SubmitHandler<Inputs> = async ({ amount: etherAmount }) => {
     const submittedAmount = parseEther(etherAmount.toString());
     if (!walletClient) return;
+    if (!account.isConnected) return;
     setActionButtonDisabled(true);
-    if (isParentChain) {
-      const l1WalletClient = walletClient.extend(walletActionsL1());
+    if (bridgeMode === "deposit") {
       if (isApproved) {
-        const transaction = await depositTransaction(
-          l1WalletClient,
-          submittedAmount
-        );
-        addTransaction(transaction);
+        await approvalFn(walletClient, submittedAmount);
       } else {
-        const transaction = await approvalTransaction(
-          l1WalletClient,
-          submittedAmount
-        );
-        addTransaction(transaction);
+        await depositFn(walletClient, submittedAmount);
       }
-    } else {
-      const l2WalletClient = walletClient.extend(walletActionsL2());
-      const transaction = await initiateWithdrawal(
-        submittedAmount,
-        l2WalletClient
-      );
-      addTransaction(transaction);
+    } else if (bridgeMode === "withdraw") {
+      await withdrawFn(walletClient, submittedAmount);
     }
     setActionButtonDisabled(false);
   };
+
+  const handleTabClick =
+    (mode: BridgeMode) => async (event: React.MouseEvent) => {
+      event.preventDefault();
+      setBridgeMode(mode);
+      console.log(mode);
+    };
+
+  const classesForTab = (mode: BridgeMode) => {
+    return clsx(
+      "w-1/2 border-b-2 text-center text-xl py-2",
+      bridgeMode === mode && ui.accentColor
+        ? `border-[${ui.accentColor}]`
+        : "border-gray text-gray-400 hover:border-gray-300 hover:text-gray-700",
+      bridgeMode === mode &&
+        ui.accentColorDark &&
+        `dark:border-[${ui.accentColorDark}]`
+    );
+  };
+
+  const targetChain = bridgeMode === "deposit" ? rollupChain : parentChain;
 
   useEffect(() => {
     setApproved(allowance >= amount);
@@ -86,12 +118,7 @@ function App() {
     <div className="flex flex-col gap-6 my-6">
       <div className="flex flex-row justify-between px-6">
         <div className="">
-          <img
-            src={import.meta.env.VITE_BRIDGE_LOGO_URL}
-            alt="logo"
-            width={40}
-            height={40}
-          />
+          <img src={ui.logoUrl} alt="logo" width={40} height={40} />
         </div>
         <div>
           <ConnectButton showBalance={false} />
@@ -101,14 +128,16 @@ function App() {
         <nav className="flex flex-row gap-1 items-center" aria-label="Tabs">
           <a
             href="#"
-            className="border-indigo-500 w-1/2 border-b-2 text-center text-xl py-2"
-            aria-current="page"
+            className={classesForTab("deposit")}
+            aria-selected={bridgeMode === "deposit" ? "true" : "false"}
+            onClick={handleTabClick("deposit")}
           >
             Deposit
           </a>
           <a
             href="#"
-            className="border-gray text-gray-400 hover:border-gray-300 hover:text-gray-700 w-1/2 border-b-2 py-2 text-center text-xl"
+            className={classesForTab("withdraw")}
+            onClick={handleTabClick("withdraw")}
           >
             Withdraw
           </a>
@@ -167,22 +196,12 @@ function App() {
             <Balance amount={balance} />
           </div>
           <div className="flex flex-col gap-4 rounded-xl bg-[#fafafa] px-8 pt-6 pb-8">
-            <OperationSummary amount={amount} targetChain={rollupChain} />
-            <button
-              type="submit"
-              className={`w-full rounded-[4px] py-3 px-4 bg-[${
-                import.meta.env.VITE_BRIDGE_ACCENT_COLOR
-              }] text-[${
-                import.meta.env.VITE_BRIDGE_ACCENT_COLOR_FOREGROUND
-              }] text-sm disabled:bg-gray-300 disabled:text-slate-400 disabled:cursor-not-allowed`}
+            <OperationSummary amount={amount} targetChain={targetChain} />
+            <ActionButton
+              mode={bridgeMode}
+              withdrawalApproved={isApproved}
               disabled={!account.isConnected || actionButtonDisabled}
-            >
-              {isParentChain
-                ? isApproved
-                  ? "Deposit"
-                  : "Approve"
-                : "Withdraw"}
-            </button>
+            />
           </div>
         </form>
       </div>

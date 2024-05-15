@@ -23,12 +23,13 @@ export const OperationSummary = ({
    *   - time to transfer for withdraw depending on phase
    */
 
+  const addressZero = "0x0000000000000000000000000000000000000000";
+
   const encodedDepositData = encodeFunctionData({
     abi: optimismPortalAbi,
     functionName: "depositERC20Transaction",
     args: [
-      walletClient?.account.address ??
-        "0x0000000000000000000000000000000000000000",
+      walletClient?.account.address ?? addressZero,
       amount,
       0n,
       50000n,
