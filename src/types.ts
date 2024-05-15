@@ -32,3 +32,5 @@ export type L1WalletClient = WalletClient &
 
 export type L2WalletClient = WalletClient &
   WalletActionsL2<ChainWithExplorer, Account>;
+
+export type BridgeMode = "deposit" | "withdraw";
