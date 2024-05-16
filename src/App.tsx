@@ -196,7 +196,11 @@ function App() {
             <Balance amount={balance} />
           </div>
           <div className="flex flex-col gap-4 rounded-xl bg-[#fafafa] px-8 pt-6 pb-8">
-            <OperationSummary amount={amount} targetChain={targetChain} />
+            <OperationSummary
+              amount={amount}
+              mode={bridgeMode}
+              targetChain={targetChain}
+            />
             <ActionButton
               mode={bridgeMode}
               withdrawalApproved={isApproved}
