@@ -18,6 +18,7 @@ import {
 } from "../config";
 import { erc20Abi, l2ToL1MessagePasserAbi, valueEventAbi } from "../abi";
 import { titleCase } from "../utils";
+import { WithdrawalActions } from "./WithdrawalActions";
 
 type TransactionType = "deposit" | "withdrawal" | "approval" | "unknown";
 
@@ -102,6 +103,20 @@ const TableCell = ({ children }: { children: React.ReactNode }) => {
   return <td className="px-2 py-3">{children}</td>;
 };
 
+const TransactionStatus = ({
+  transaction,
+}: {
+  transaction: WaitForTransactionReceiptReturnType;
+}) => {
+  if (transaction.status === "reverted") {
+    return <p className="font-medium text-xs">Reverted</p>;
+  }
+  if (txType(transaction) === "withdrawal") {
+    return <WithdrawalActions transaction={transaction} />;
+  }
+  return <p className="font-medium text-xs">{transaction.status}</p>;
+};
+
 export const TransactionRow = ({
   transaction,
 }: {
@@ -149,7 +164,7 @@ export const TransactionRow = ({
         </p>
       </TableCell>
       <TableCell>
-        <p className="font-medium text-xs">{transaction.status}</p>
+        <TransactionStatus transaction={transaction} />
       </TableCell>
     </tr>
   );
