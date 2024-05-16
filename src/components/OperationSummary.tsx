@@ -1,13 +1,16 @@
-import { defineChain, encodeFunctionData } from "viem";
 import { format } from "dnum";
+import { defineChain, encodeFunctionData } from "viem";
 import { useEstimateGas, useWalletClient } from "wagmi";
-import { optimismPortalAbi } from "../abi";
+import { l2ToL1MessagePasserAbi, optimismPortalAbi } from "../abi";
+import { BridgeMode } from "../types";
 
 export const OperationSummary = ({
   amount,
+  mode,
   targetChain,
 }: {
   amount: bigint;
+  mode: BridgeMode;
   targetChain: ReturnType<typeof defineChain>;
 }) => {
   const { iconUrl, name, nativeCurrency } = targetChain;
@@ -15,16 +18,7 @@ export const OperationSummary = ({
 
   const { data: walletClient } = useWalletClient();
 
-  /**
-   * TODO:
-   * - handle summary for Withdrawal as well
-   *   - encodeFunctionData for withdraw
-   *   - useEstimateGas for withdraw
-   *   - time to transfer for withdraw depending on phase
-   */
-
   const addressZero = "0x0000000000000000000000000000000000000000";
-
   const encodedDepositData = encodeFunctionData({
     abi: optimismPortalAbi,
     functionName: "depositERC20Transaction",
@@ -38,11 +32,22 @@ export const OperationSummary = ({
     ],
   });
 
+  const encodedWithdrawData = encodeFunctionData({
+    abi: l2ToL1MessagePasserAbi,
+    functionName: "initiateWithdrawal",
+    args: [walletClient?.account.address ?? addressZero, 50000n, "0x"],
+  });
+
   const { data: gasEstimate, error } = useEstimateGas({
     to: import.meta.env.VITE_L1_OPTIMISM_PORTAL_ADDRESS,
-    data: encodedDepositData,
+    data: mode === "deposit" ? encodedDepositData : encodedWithdrawData,
   });
   if (error) console.error(error);
+
+  const timings = {
+    deposit: "~1 minute",
+    withdraw: "~7 days",
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -70,7 +75,7 @@ export const OperationSummary = ({
         </div>
         <div className="flex flex-row justify-between text-xs text-gray-400">
           <p>Time to transfer</p>
-          <p>~1 minute</p>
+          <p>{timings[mode]}</p>
         </div>
       </div>
     </div>
