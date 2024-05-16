@@ -6,3 +6,9 @@ export const formatBalance = (balance: bigint, decimals: number) => {
     trailingZeros: true,
   });
 };
+
+export const titleCase = (str: string): string => {
+  return str.toLowerCase().replace(/\b\w+/g, (word) => {
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  });
+};
