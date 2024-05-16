@@ -85,16 +85,21 @@ function App() {
     if (!walletClient) return;
     if (!account.isConnected) return;
     setActionButtonDisabled(true);
-    if (bridgeMode === "deposit") {
-      if (isApproved) {
-        await approvalFn(walletClient, submittedAmount);
-      } else {
-        await depositFn(walletClient, submittedAmount);
+    try {
+      if (bridgeMode === "deposit") {
+        if (isApproved) {
+          await approvalFn(walletClient, submittedAmount);
+        } else {
+          await depositFn(walletClient, submittedAmount);
+        }
+      } else if (bridgeMode === "withdraw") {
+        await withdrawFn(walletClient, submittedAmount);
       }
-    } else if (bridgeMode === "withdraw") {
-      await withdrawFn(walletClient, submittedAmount);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setActionButtonDisabled(false);
     }
-    setActionButtonDisabled(false);
   };
 
   const handleTabClick =
