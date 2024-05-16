@@ -13,7 +13,7 @@ import {
   uiConfig as ui,
 } from "./config";
 import { Balance } from "./components/Balance";
-import { TransactionListItem } from "./components/TransactionListItem";
+import { TransactionRow } from "./components/TransactionRow";
 import { approvalTransaction, depositTransaction } from "./txs/deposit";
 import { initiateWithdrawal } from "./txs/withdraw";
 import {
@@ -30,6 +30,17 @@ import { ActionButton } from "./components/ActionButton";
 
 type Inputs = {
   amount: bigint;
+};
+
+const Th = ({ children }: { children: React.ReactElement | string }) => {
+  return (
+    <th
+      scope="col"
+      className="font-normal text-xs text-[#9E9BA6] text-left px-2 py-4"
+    >
+      {children}
+    </th>
+  );
 };
 
 function App() {
@@ -209,17 +220,26 @@ function App() {
           </div>
         </form>
       </div>
-      <div className="w-full max-w-96 m-auto">
-        <ul role="list" className="divide-y divide-gray-100">
-          {transactions.map((transaction) => (
-            <li
-              key={transaction.transactionHash}
-              className="w-full flex flex-row gap-2 py-2 text-sm"
-            >
-              <TransactionListItem transaction={transaction} />
-            </li>
-          ))}
-        </ul>
+      <div className="w-full lg:w-[488px] m-auto flex flex-col gap-4">
+        <h3 className="text-xl font-medium">Transactions</h3>
+        <table className="w-full table-auto">
+          <thead>
+            <tr>
+              <Th>Time</Th>
+              <Th>Type</Th>
+              <Th>Amount</Th>
+              <Th>Status</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions.map((transaction) => (
+              <TransactionRow
+                key={transaction.transactionHash}
+                transaction={transaction}
+              />
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
