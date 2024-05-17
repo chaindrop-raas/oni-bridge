@@ -1,4 +1,5 @@
 import { createPublicClient, Account, Chain } from "viem";
+import { getWithdrawalStatus } from "viem/op-stack";
 import {
   PublicActionsL1,
   PublicActionsL2,
@@ -34,3 +35,7 @@ export type L2WalletClient = WalletClient &
   WalletActionsL2<ChainWithExplorer, Account>;
 
 export type BridgeMode = "deposit" | "withdraw";
+
+export type StatusReturnType =
+  | Awaited<ReturnType<typeof getWithdrawalStatus>>
+  | "retrieving-status";

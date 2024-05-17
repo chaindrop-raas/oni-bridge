@@ -22,8 +22,9 @@ import {
   rollupConfig,
   token,
 } from "./config";
-import { getWithdrawalStatus, getWithdrawals } from "viem/op-stack";
+import { getWithdrawals } from "viem/op-stack";
 import { erc20Abi } from "./abi";
+import { StatusReturnType } from "./types";
 
 export const useIsParentChain = () => {
   const chainId = useChainId();
@@ -186,10 +187,6 @@ export const useTimeToFinalize = (initiatingHash: Hex) => {
 
   return timeToFinalize;
 };
-
-type StatusReturnType =
-  | Awaited<ReturnType<typeof getWithdrawalStatus>>
-  | "retrieving-status";
 
 export const useGetWithdrawalStatus = (
   transaction: WaitForTransactionReceiptReturnType
