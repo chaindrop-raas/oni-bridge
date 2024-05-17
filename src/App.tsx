@@ -78,9 +78,9 @@ function App() {
     try {
       if (bridgeMode === "deposit") {
         if (isApproved) {
-          await approvalFn(walletClient, submittedAmount);
-        } else {
           await depositFn(walletClient, submittedAmount);
+        } else {
+          await approvalFn(walletClient, submittedAmount);
         }
       } else if (bridgeMode === "withdraw") {
         await withdrawFn(walletClient, submittedAmount);
@@ -170,6 +170,7 @@ function App() {
             <OperationSummary
               amount={amount}
               mode={bridgeMode}
+              withdrawalApproved={isApproved}
               targetChain={targetChain}
             />
             <ActionButton

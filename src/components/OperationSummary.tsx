@@ -1,24 +1,33 @@
 import { format } from "dnum";
-import { defineChain, encodeFunctionData } from "viem";
+import { defineChain, encodeFunctionData, erc20Abi } from "viem";
 import { useEstimateGas, useWalletClient } from "wagmi";
 import { l2ToL1MessagePasserAbi, optimismPortalAbi } from "../abi";
+import { rollupChain } from "../config";
 import { BridgeMode } from "../types";
 
 export const OperationSummary = ({
   amount,
   mode,
   targetChain,
+  withdrawalApproved,
 }: {
   amount: bigint;
   mode: BridgeMode;
   targetChain: ReturnType<typeof defineChain>;
+  withdrawalApproved: boolean;
 }) => {
   const { iconUrl, name, nativeCurrency } = targetChain;
-  const { symbol, decimals } = nativeCurrency;
+  const { decimals } = nativeCurrency;
 
   const { data: walletClient } = useWalletClient();
 
   const addressZero = "0x0000000000000000000000000000000000000000";
+  const encodedApproveData = encodeFunctionData({
+    abi: erc20Abi,
+    functionName: "approve",
+    args: [import.meta.env.VITE_L1_OPTIMISM_PORTAL_ADDRESS, amount],
+  });
+
   const encodedDepositData = encodeFunctionData({
     abi: optimismPortalAbi,
     functionName: "depositERC20Transaction",
@@ -40,7 +49,12 @@ export const OperationSummary = ({
 
   const { data: gasEstimate, error } = useEstimateGas({
     to: import.meta.env.VITE_L1_OPTIMISM_PORTAL_ADDRESS,
-    data: mode === "deposit" ? encodedDepositData : encodedWithdrawData,
+    data:
+      mode === "deposit"
+        ? withdrawalApproved
+          ? encodedDepositData
+          : encodedApproveData
+        : encodedWithdrawData,
   });
   if (error) console.error(error);
 
@@ -63,7 +77,7 @@ export const OperationSummary = ({
             {format([amount, decimals], {
               digits: 4,
             })}{" "}
-            {symbol}
+            {rollupChain.nativeCurrency.symbol}
           </p>
         </div>
         <div className="flex flex-row justify-between text-xs text-gray-400">
