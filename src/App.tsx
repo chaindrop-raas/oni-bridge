@@ -1,7 +1,7 @@
 import { clsx } from "clsx";
 import { toNumber } from "dnum";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { parseEther } from "viem";
 import { useAccount, useWalletClient } from "wagmi";
@@ -27,6 +27,7 @@ import { BridgeDirection } from "./components/BridgeDirection";
 import { OperationSummary } from "./components/OperationSummary";
 import { ActionButton } from "./components/ActionButton";
 import { Transactions } from "./components/Transactions";
+import { Tabs } from "./components/Tabs";
 
 type Inputs = {
   amount: bigint;
@@ -91,25 +92,6 @@ function App() {
     }
   };
 
-  const handleTabClick =
-    (mode: BridgeMode) => async (event: React.MouseEvent) => {
-      event.preventDefault();
-      setBridgeMode(mode);
-      console.log(mode);
-    };
-
-  const classesForTab = (mode: BridgeMode) => {
-    return clsx(
-      "w-1/2 border-b-2 text-center text-xl py-2",
-      bridgeMode === mode && ui.accentColor
-        ? `border-[${ui.accentColor}]`
-        : "border-gray text-gray-400 hover:border-gray-300 hover:text-gray-700",
-      bridgeMode === mode &&
-        ui.accentColorDark &&
-        `dark:border-[${ui.accentColorDark}]`
-    );
-  };
-
   const targetChain = bridgeMode === "deposit" ? rollupChain : parentChain;
 
   useEffect(() => {
@@ -130,23 +112,7 @@ function App() {
         </div>
       </div>
       <div className="mx-auto lg:w-[488px] flex flex-col gap-4">
-        <nav className="flex flex-row gap-1 items-center" aria-label="Tabs">
-          <a
-            href="#"
-            className={classesForTab("deposit")}
-            aria-selected={bridgeMode === "deposit" ? "true" : "false"}
-            onClick={handleTabClick("deposit")}
-          >
-            Deposit
-          </a>
-          <a
-            href="#"
-            className={classesForTab("withdraw")}
-            onClick={handleTabClick("withdraw")}
-          >
-            Withdraw
-          </a>
-        </nav>
+        <Tabs bridgeMode={bridgeMode} setBridgeMode={setBridgeMode} />
         <form className="flex flex-col gap-1" onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col gap-2 rounded-xl bg-[#fafafa] px-8 pt-6 pb-8">
             <BridgeDirection />
