@@ -19,6 +19,8 @@ import {
 import { erc20Abi, l2ToL1MessagePasserAbi, valueEventAbi } from "../abi";
 import { titleCase } from "../utils";
 import { WithdrawalActions } from "./WithdrawalActions";
+import { WithdrawalProgress } from "./WithdrawalProgress";
+import clsx from "clsx";
 
 type TransactionType = "deposit" | "withdrawal" | "approval" | "unknown";
 
@@ -99,8 +101,14 @@ const formatTime = (timestamp: bigint) => {
   }).format(blockTime);
 };
 
-const TableCell = ({ children }: { children: React.ReactNode }) => {
-  return <td className="px-2 py-3">{children}</td>;
+const TableCell = ({
+  className,
+  children,
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) => {
+  return <td className={clsx("px-2 py-3", className)}>{children}</td>;
 };
 
 const TransactionStatus = ({
@@ -123,8 +131,9 @@ export const TransactionRow = ({
   transaction: WaitForTransactionReceiptReturnType;
 }) => {
   const transactionLogs = parseLogs(transaction) as unknown as ValueEventLogs;
+  const transactionType = txType(transaction);
   const chainId =
-    txType(transaction) === "withdrawal" ? rollupChain.id : parentChain.id;
+    transactionType === "withdrawal" ? rollupChain.id : parentChain.id;
   const { data: block } = useBlock({
     blockHash: transaction.blockHash,
     chainId,
@@ -141,9 +150,14 @@ export const TransactionRow = ({
 
   return (
     <tr className="even:bg-gray-50">
-      <TableCell>
-        <p className="font-medium text-xs">{formattedDate}</p>
-        <p className="font-normal text-xs text-[#9E9BA6]">{formattedTime}</p>
+      <TableCell className="flex flex-row gap-2 items-center">
+        {transactionType === "withdrawal" && (
+          <WithdrawalProgress transaction={transaction} />
+        )}
+        <div>
+          <p className="font-medium text-xs">{formattedDate}</p>
+          <p className="font-normal text-xs text-[#9E9BA6]">{formattedTime}</p>
+        </div>
       </TableCell>
       <TableCell>
         <p className="font-medium text-xs">{titleCase(txType(transaction))}</p>
