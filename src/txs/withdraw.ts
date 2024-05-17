@@ -1,5 +1,5 @@
 import { Hex } from "viem";
-import { parentClient, rollupChain, rollupClient } from "../config";
+import { parentClient, rollupChain, rollupClient, } from "../config";
 import { L1WalletClient, L2WalletClient } from "../types";
 import { getWithdrawals } from "viem/op-stack";
 
@@ -8,6 +8,7 @@ export const initiateWithdrawal = async (
   walletClient: L2WalletClient
 ) => {
   const args = await parentClient.buildInitiateWithdrawal({
+    gas: 21_000n,
     to: walletClient.account.address,
     value: amount,
   });
