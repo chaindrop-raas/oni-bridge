@@ -1,7 +1,6 @@
 import { TransactionReceipt } from "viem";
 import { useGetWithdrawalStatus } from "../hooks";
 import { useEffect, useState } from "react";
-import { uiConfig } from "../config";
 
 export const WithdrawalProgress = ({
   transaction,
@@ -11,7 +10,7 @@ export const WithdrawalProgress = ({
   const { status } = useGetWithdrawalStatus(transaction);
   const [segmentProgress, setSegmentProgress] = useState<number>(0);
 
-  const segmentFillColor = uiConfig.accentColor;
+  const segmentFillColor = import.meta.env.VITE_BRIDGE_ACCENT_COLOR;
 
   useEffect(() => {
     switch (status) {
@@ -35,6 +34,7 @@ export const WithdrawalProgress = ({
         break;
     }
   }, [status]);
+
   return (
     <svg
       width="28"

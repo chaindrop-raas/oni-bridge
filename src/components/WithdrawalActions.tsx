@@ -13,15 +13,11 @@ const Button = ({
   children: React.ReactNode;
   onClick?: () => void;
 }) => {
-  const accentColor = import.meta.env.VITE_BRIDGE_ACCENT_COLOR;
-  const accentColorDark = import.meta.env.VITE_BRIDGE_ACCENT_COLOR_DARK;
-
   return (
     <button
       className={clsx(
-        accentColor && `border-[${accentColor}] text-[${accentColor}]`,
-        accentColorDark &&
-          `dark:border-[${accentColorDark}] dark:text-[${accentColorDark}]`,
+        "border-accent text-accent",
+        "dark:border-accent-dark dark:text-accent-dark",
         "text-xs rounded-[4px] border w-full py-1"
       )}
       onClick={() => onClick && onClick()}
