@@ -6,12 +6,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { parseEther } from "viem";
 import { useAccount, useWalletClient } from "wagmi";
 
-import {
-  parentChain,
-  rollupChain,
-  rollupClient,
-  uiConfig as ui,
-} from "./config";
+import { parentChain, rollupChain, rollupClient } from "./config";
 import { Balance } from "./components/Balance";
 import { approvalTransaction, depositTransaction } from "./txs/deposit";
 import { initiateWithdrawal } from "./txs/withdraw";
@@ -42,6 +37,8 @@ function App() {
   const [actionButtonDisabled, setActionButtonDisabled] = useState(false);
   const [bridgeMode, setBridgeMode] = useState<BridgeMode>("deposit");
   const { transactions, addTransaction } = useTransactionStorage();
+
+  const logoUrl = import.meta.env.VITE_BRIDGE_LOGO_URL;
 
   const {
     formState: { errors },
@@ -105,7 +102,7 @@ function App() {
     <div className="flex flex-col gap-6 my-6">
       <div className="flex flex-row justify-between px-6">
         <div className="">
-          <img src={ui.logoUrl} alt="logo" width={40} height={40} />
+          <img src={logoUrl} alt="logo" width={40} height={40} />
         </div>
         <div>
           <ConnectButton showBalance={false} />

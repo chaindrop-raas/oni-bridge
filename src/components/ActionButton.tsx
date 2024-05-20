@@ -2,7 +2,7 @@ import { clsx } from "clsx";
 import { useEffect, useState } from "react";
 import { useWalletClient } from "wagmi";
 
-import { parentChain, rollupChain, uiConfig as ui } from "../config";
+import { parentChain, rollupChain } from "../config";
 import { useIsParentChain } from "../hooks";
 import { BridgeMode } from "../types";
 
@@ -69,11 +69,8 @@ export const ActionButton = ({
       className={clsx(
         "w-full rounded-[4px] py-3 px-4 text-sm disabled:bg-gray-300",
         "disabled:text-slate-400 disabled:cursor-not-allowed",
-        ui.accentColor && `bg-[${ui.accentColor}]`,
-        ui.accentColorDark && `dark:bg-[${ui.accentColorDark}]`,
-        ui.accentColorForeground && `text-[${ui.accentColorForeground}]`,
-        ui.accentColorForegroundDark &&
-          `dark:text-[${ui.accentColorForegroundDark}]`
+        "bg-accent dark:bg-accent-dark",
+        "text-accent-foreground dark:text-accent-foreground-dark"
       )}
       disabled={disabled}
     >

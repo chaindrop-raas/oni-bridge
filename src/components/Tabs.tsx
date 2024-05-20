@@ -1,5 +1,4 @@
 import { clsx } from "clsx";
-import { uiConfig as ui } from "../config";
 import type { BridgeMode } from "../types";
 
 export const Tabs = ({
@@ -18,12 +17,9 @@ export const Tabs = ({
   const classesForTab = (mode: BridgeMode) => {
     return clsx(
       "w-1/2 border-b-2 text-center text-xl py-2",
-      bridgeMode === mode && ui.accentColor
-        ? `border-[${ui.accentColor}]`
-        : "border-gray text-gray-400 hover:border-gray-300 hover:text-gray-700",
-      bridgeMode === mode &&
-        ui.accentColorDark &&
-        `dark:border-[${ui.accentColorDark}]`
+      bridgeMode === mode
+        ? "border-accent dark:border-accent-dark"
+        : "border-gray text-gray-400 hover:border-gray-300 hover:text-gray-700"
     );
   };
 
