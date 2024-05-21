@@ -167,12 +167,12 @@ function App() {
             <OperationSummary
               amount={amount}
               mode={bridgeMode}
-              withdrawalApproved={isApproved}
+              depositApproved={isApproved}
               targetChain={targetChain}
             />
             <ActionButton
               mode={bridgeMode}
-              withdrawalApproved={isApproved}
+              depositApproved={isApproved}
               disabled={!account.isConnected || actionButtonDisabled}
             />
           </div>
