@@ -11,11 +11,11 @@ type ButtonMode = "approve" | "deposit" | "withdraw" | "network-error";
 export const ActionButton = ({
   disabled,
   mode,
-  withdrawalApproved,
+  depositApproved,
 }: {
   disabled: boolean;
   mode: BridgeMode;
-  withdrawalApproved: boolean;
+  depositApproved: boolean;
 }) => {
   const isParentChain = useIsParentChain();
   const [buttonMode, setButtonMode] = useState<ButtonMode>("withdraw");
@@ -37,7 +37,7 @@ export const ActionButton = ({
     ) {
       setButtonMode("network-error");
     } else if (mode === "deposit") {
-      if (withdrawalApproved) {
+      if (depositApproved) {
         setButtonMode("deposit");
       } else {
         setButtonMode("approve");
@@ -45,7 +45,7 @@ export const ActionButton = ({
     } else {
       setButtonMode("withdraw");
     }
-  }, [isParentChain, mode, withdrawalApproved]);
+  }, [isParentChain, mode, depositApproved]);
 
   if (buttonMode === "network-error") {
     return (

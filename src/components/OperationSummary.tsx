@@ -9,12 +9,12 @@ export const OperationSummary = ({
   amount,
   mode,
   targetChain,
-  withdrawalApproved,
+  depositApproved,
 }: {
   amount: bigint;
   mode: BridgeMode;
   targetChain: ReturnType<typeof defineChain>;
-  withdrawalApproved: boolean;
+  depositApproved: boolean;
 }) => {
   const { iconUrl, name, nativeCurrency } = targetChain;
   const { decimals } = nativeCurrency;
@@ -51,7 +51,7 @@ export const OperationSummary = ({
     to: import.meta.env.VITE_L1_OPTIMISM_PORTAL_ADDRESS,
     data:
       mode === "deposit"
-        ? withdrawalApproved
+        ? depositApproved
           ? encodedDepositData
           : encodedApproveData
         : encodedWithdrawData,
