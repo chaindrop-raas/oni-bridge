@@ -2,7 +2,7 @@ import { TransactionReceipt } from "viem";
 import { useGetWithdrawalStatus } from "../hooks";
 import { useEffect, useState } from "react";
 
-export const WithdrawalProgress = ({
+export const WithdrawalProgressIcon = ({
   transaction,
 }: {
   transaction: TransactionReceipt;
