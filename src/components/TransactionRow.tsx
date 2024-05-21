@@ -19,7 +19,7 @@ import {
 import { erc20Abi, l2ToL1MessagePasserAbi, valueEventAbi } from "../abi";
 import { titleCase } from "../utils";
 import { WithdrawalActions } from "./WithdrawalActions";
-import { WithdrawalProgress } from "./WithdrawalProgress";
+import { WithdrawalProgressIcon } from "./WithdrawalProgressIcon";
 import clsx from "clsx";
 
 type TransactionType = "deposit" | "withdrawal" | "approval" | "unknown";
@@ -152,7 +152,7 @@ export const TransactionRow = ({
     <tr className="even:bg-gray-50">
       <TableCell className="flex flex-row gap-2 items-center">
         {transactionType === "withdrawal" && (
-          <WithdrawalProgress transaction={transaction} />
+          <WithdrawalProgressIcon transaction={transaction} />
         )}
         <div>
           <p className="font-medium text-xs">{formattedDate}</p>
