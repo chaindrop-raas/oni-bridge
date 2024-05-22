@@ -1,54 +1,18 @@
 import { useEffect, useState } from "react";
+import clsx from "clsx";
 import {
   formatEther,
-  getAddress,
   parseEventLogs,
   type ParseEventLogsReturnType,
   type WaitForTransactionReceiptReturnType,
 } from "viem";
 import { useBlock } from "wagmi";
 
-import {
-  parentClient,
-  rollupChain,
-  rollupClient,
-  token,
-  optimismPortal,
-  parentChain,
-} from "../config";
 import { erc20Abi, l2ToL1MessagePasserAbi, valueEventAbi } from "../abi";
-import { titleCase } from "../utils";
+import { rollupChain, parentChain } from "../config";
+import { titleCase, txType, blockExplorerURL } from "../utils";
 import { WithdrawalActions } from "./WithdrawalActions";
-import { WithdrawalProgressIcon } from "./WithdrawalProgressIcon";
-import clsx from "clsx";
-
-type TransactionType = "deposit" | "withdrawal" | "approval" | "unknown";
-
-const txType = (
-  transaction: WaitForTransactionReceiptReturnType
-): TransactionType => {
-  if (!transaction.to) return "unknown";
-  switch (getAddress(transaction.to)) {
-    case getAddress(rollupChain.contracts.l2ToL1MessagePasser.address):
-      return "withdrawal";
-    case getAddress(optimismPortal.address):
-      return "deposit";
-    case getAddress(token.address):
-      return "approval";
-    default:
-      return "unknown";
-  }
-};
-
-const blockExplorerURL = (tx: WaitForTransactionReceiptReturnType) => {
-  const label = txType(tx);
-  switch (label) {
-    case "withdrawal":
-      return `${rollupClient.chain.blockExplorers.default.url}/tx/${tx.transactionHash}`;
-    default:
-      return `${parentClient.chain.blockExplorers.default.url}/tx/${tx.transactionHash}`;
-  }
-};
+import { WithdrawalProgressIcon } from "./icons/WithdrawalProgress";
 
 const parseLogs = (transaction: WaitForTransactionReceiptReturnType) => {
   switch (txType(transaction)) {
@@ -80,7 +44,7 @@ type ValueEventLogs = ParseEventLogsReturnType<
 >;
 
 const valueFromLogs = (logs: ValueEventLogs) => {
-  return formatEther(logs[0].args.value ?? 0n);
+  return logs[0].args.value ?? 0n;
 };
 
 const formatDate = (timestamp: bigint) => {
@@ -113,14 +77,16 @@ const TableCell = ({
 
 const TransactionStatus = ({
   transaction,
+  amount,
 }: {
   transaction: WaitForTransactionReceiptReturnType;
+  amount: bigint;
 }) => {
   if (transaction.status === "reverted") {
     return <p className="font-medium text-xs">Reverted</p>;
   }
   if (txType(transaction) === "withdrawal") {
-    return <WithdrawalActions transaction={transaction} />;
+    return <WithdrawalActions transaction={transaction} amount={amount} />;
   }
   return <p className="font-medium text-xs">{transaction.status}</p>;
 };
@@ -140,6 +106,10 @@ export const TransactionRow = ({
   });
   const [formattedDate, setFormattedDate] = useState<string>("Loading...");
   const [formattedTime, setFormattedTime] = useState<string>("Loading...");
+
+  const formattedAmount = `${formatEther(valueFromLogs(transactionLogs))} ${
+    rollupChain.nativeCurrency.symbol
+  }`;
 
   useEffect(() => {
     if (block) {
@@ -173,12 +143,13 @@ export const TransactionRow = ({
         </p>
       </TableCell>
       <TableCell>
-        <p className="font-medium text-xs">
-          {valueFromLogs(transactionLogs)} {rollupChain.nativeCurrency.symbol}
-        </p>
+        <p className="font-medium text-xs">{formattedAmount}</p>
       </TableCell>
       <TableCell>
-        <TransactionStatus transaction={transaction} />
+        <TransactionStatus
+          transaction={transaction}
+          amount={valueFromLogs(transactionLogs)}
+        />
       </TableCell>
     </tr>
   );

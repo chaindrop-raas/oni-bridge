@@ -39,3 +39,5 @@ export type BridgeMode = "deposit" | "withdraw";
 export type StatusReturnType =
   | Awaited<ReturnType<typeof getWithdrawalStatus>>
   | "retrieving-status";
+
+export type TransactionType = "deposit" | "withdrawal" | "approval" | "unknown";

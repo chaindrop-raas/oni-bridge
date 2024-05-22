@@ -1,6 +1,7 @@
 import { TransactionReceipt } from "viem";
-import { useGetWithdrawalStatus } from "../hooks";
+import { useGetWithdrawalStatus } from "../../hooks";
 import { useEffect, useState } from "react";
+import { statusStep } from "../../utils";
 
 export const WithdrawalProgressIcon = ({
   transaction,
@@ -10,29 +11,10 @@ export const WithdrawalProgressIcon = ({
   const { status } = useGetWithdrawalStatus(transaction);
   const [segmentProgress, setSegmentProgress] = useState<number>(0);
 
-  const segmentFillColor = import.meta.env.VITE_BRIDGE_ACCENT_COLOR;
+  const accentColor = import.meta.env.VITE_BRIDGE_ACCENT_COLOR;
 
   useEffect(() => {
-    switch (status) {
-      case "retrieving-status":
-        setSegmentProgress(0);
-        break;
-      case "waiting-to-prove":
-        setSegmentProgress(1);
-        break;
-      case "ready-to-prove":
-        setSegmentProgress(2);
-        break;
-      case "waiting-to-finalize":
-        setSegmentProgress(3);
-        break;
-      case "ready-to-finalize":
-        setSegmentProgress(4);
-        break;
-      case "finalized":
-        setSegmentProgress(5);
-        break;
-    }
+    setSegmentProgress(statusStep(status));
   }, [status]);
 
   return (
@@ -47,22 +29,22 @@ export const WithdrawalProgressIcon = ({
         {/* segment one */}
         <path
           d="M26.5771 13.5195C27.3573 13.4897 27.973 12.8311 27.8647 12.0578C27.4441 9.05479 26.0568 6.2551 23.8933 4.09428C21.7297 1.93345 18.9283 0.549719 15.9247 0.132902C15.1513 0.0255755 14.4935 0.642079 14.4647 1.42235C14.4358 2.20262 15.0479 2.8494 15.8183 2.97646C18.1082 3.35413 20.2365 4.43838 21.8952 6.09491C23.5538 7.75144 24.6407 9.87845 25.0212 12.1678C25.1493 12.9381 25.7968 13.5493 26.5771 13.5195Z"
-          fill={segmentProgress >= 1 ? segmentFillColor : "#D2D1D4"}
+          fill={segmentProgress >= 1 ? accentColor : "#D2D1D4"}
         />
         {/* segment two */}
         <path
           d="M26.5771 14.4805C27.3573 14.5103 27.973 15.1689 27.8647 15.9422C27.4441 18.9452 26.0568 21.7449 23.8933 23.9057C21.7297 26.0665 18.9283 27.4503 15.9247 27.8671C15.1513 27.9744 14.4935 27.3579 14.4647 26.5777C14.4358 25.7974 15.0479 25.1506 15.8183 25.0235C18.1082 24.6459 20.2365 23.5616 21.8952 21.9051C23.5538 20.2486 24.6407 18.1216 25.0212 15.8322C25.1493 15.0619 25.7968 14.4507 26.5771 14.4805Z"
-          fill={segmentProgress >= 2 ? segmentFillColor : "#D2D1D4"}
+          fill={segmentProgress >= 2 ? accentColor : "#D2D1D4"}
         />
         {/* segment three */}
         <path
           d="M1.42294 14.4805C0.64271 14.5103 0.0270348 15.1689 0.135334 15.9422C0.555929 18.9452 1.94319 21.7449 4.10674 23.9057C6.27028 26.0665 9.07171 27.4503 12.0753 27.8671C12.8487 27.9744 13.5065 27.3579 13.5353 26.5777C13.5642 25.7974 12.9521 25.1506 12.1817 25.0235C9.89184 24.6459 7.76346 23.5616 6.10485 21.9051C4.44623 20.2486 3.35931 18.1216 2.97876 15.8322C2.85072 15.0619 2.20318 14.4507 1.42294 14.4805Z"
-          fill={segmentProgress >= 3 ? segmentFillColor : "#D2D1D4"}
+          fill={segmentProgress >= 3 ? accentColor : "#D2D1D4"}
         />
         {/* segment four */}
         <path
           d="M1.42294 13.5195C0.64271 13.4897 0.0270348 12.8311 0.135334 12.0578C0.555929 9.05479 1.94319 6.2551 4.10674 4.09428C6.27028 1.93345 9.07171 0.549719 12.0753 0.132902C12.8487 0.0255755 13.5065 0.642079 13.5353 1.42235C13.5642 2.20262 12.9521 2.8494 12.1817 2.97646C9.89184 3.35413 7.76346 4.43838 6.10485 6.09491C4.44623 7.75144 3.35931 9.87845 2.97876 12.1678C2.85072 12.9381 2.20318 13.5493 1.42294 13.5195Z"
-          fill={segmentProgress >= 4 ? segmentFillColor : "#D2D1D4"}
+          fill={segmentProgress >= 4 ? accentColor : "#D2D1D4"}
         />
         {/* clock icon */}
         {segmentProgress <= 1 && (
@@ -130,6 +112,19 @@ export const WithdrawalProgressIcon = ({
               stroke="#9E9BA6"
               strokeWidth="1.25"
               strokeLinecap="round"
+            />
+          </>
+        )}
+        {/* finalized icon */}
+        {segmentProgress == 5 && (
+          <>
+            <path
+              d="M7 12.5L10.5 16L17 9.5"
+              stroke={accentColor ?? "#9E9BA6"}
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              transform="translate(2 2.5)"
             />
           </>
         )}
