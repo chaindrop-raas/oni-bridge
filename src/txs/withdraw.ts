@@ -16,13 +16,30 @@ export const initiateWithdrawal = async (
   return await rollupClient.waitForTransactionReceipt({ hash });
 };
 
+export const buildWithdrawalProof = async (initiatingHash: Hex) => {
+  const receipt = await rollupClient.getTransactionReceipt({
+    hash: initiatingHash,
+  });
+
+  const [withdrawal] = getWithdrawals(receipt);
+  const output = await parentClient.getL2Output({
+    l2BlockNumber: receipt.blockNumber,
+    targetChain: rollupChain,
+  });
+
+  const proof = await rollupClient.buildProveWithdrawal({
+    output,
+    withdrawal,
+  });
+
+  return { receipt, data: proof };
+};
+
 export const proveWithdrawal = async (
   initiatingHash: Hex,
   walletClient: L1WalletClient
 ) => {
-  const receipt = await rollupClient.getTransactionReceipt({
-    hash: initiatingHash,
-  });
+  const { receipt, data: proof } = await buildWithdrawalProof(initiatingHash);
 
   const status = await parentClient.getWithdrawalStatus({
     receipt,
@@ -33,38 +50,37 @@ export const proveWithdrawal = async (
     throw new Error(`Withdrawal is not ready to prove: ${status}`);
   }
 
-  const [withdrawal] = getWithdrawals(receipt);
-  const output = await parentClient.getL2Output({
-    l2BlockNumber: receipt.blockNumber,
-    targetChain: rollupChain,
-  });
-  const args = await rollupClient.buildProveWithdrawal({
-    output,
-    withdrawal,
+  const hash = await walletClient.proveWithdrawal(proof);
+  return await parentClient.waitForTransactionReceipt({ hash });
+};
+
+export const buildFinalizeWithdrawal = async (initiatingHash: Hex) => {
+  const receipt = await rollupClient.getTransactionReceipt({
+    hash: initiatingHash,
   });
 
-  const hash = await walletClient.proveWithdrawal(args);
-  return await parentClient.waitForTransactionReceipt({ hash });
+  const [withdrawal] = getWithdrawals(receipt);
+  return { data: withdrawal, receipt };
 };
 
 export const finalizeWithdrawal = async (
   initiatingHash: Hex,
   walletClient: L1WalletClient
 ) => {
-  const receipt = await rollupClient.getTransactionReceipt({
-    hash: initiatingHash,
-  });
-
+  const { data: withdrawal, receipt } = await buildFinalizeWithdrawal(
+    initiatingHash
+  );
   const status = await parentClient.getWithdrawalStatus({
     receipt,
     targetChain: rollupChain,
   });
 
   if (status !== "ready-to-finalize") {
-    throw new Error(`Withdrawal is not ready to finalize: ${status}`);
+    return {
+      error: `Withdrawal is not ready to finalize: ${status}`,
+      withdrawal: null,
+    };
   }
-
-  const [withdrawal] = getWithdrawals(receipt);
 
   const hash = await walletClient.finalizeWithdrawal({
     targetChain: rollupChain,

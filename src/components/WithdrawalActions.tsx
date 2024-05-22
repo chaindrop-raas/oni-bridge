@@ -1,74 +1,189 @@
-import type { WaitForTransactionReceiptReturnType } from "viem";
+import * as Dialog from "@radix-ui/react-dialog";
+import clsx from "clsx";
+import { useState } from "react";
+import { formatEther, type WaitForTransactionReceiptReturnType } from "viem";
 import { walletActionsL1 } from "viem/op-stack";
 import { useWalletClient } from "wagmi";
 
-import { useGetWithdrawalStatus } from "../hooks";
+import { rollupChain } from "../config";
+import {
+  useGetWithdrawalStatus,
+  useEstimateProveWithdrawalGas,
+  useEstimateFinalizeWithdrawalGas,
+} from "../hooks";
 import { finalizeWithdrawal, proveWithdrawal } from "../txs/withdraw";
-import clsx from "clsx";
-
-const Button = ({
-  children,
-  onClick,
-}: {
-  children: React.ReactNode;
-  onClick?: () => void;
-}) => {
-  return (
-    <button
-      className={clsx(
-        "border-accent text-accent",
-        "dark:border-accent-dark dark:text-accent-dark",
-        "text-xs rounded-[4px] border w-full py-1"
-      )}
-      onClick={() => onClick && onClick()}
-    >
-      {children}
-    </button>
-  );
-};
+import { ExternalLinkIcon, WithdrawalStatusIcon } from "./icons";
+import { blockExplorerURL } from "../utils";
 
 export const WithdrawalActions = ({
   transaction,
+  amount,
 }: {
   transaction: WaitForTransactionReceiptReturnType;
+  amount: bigint;
 }) => {
+  const [open, setOpen] = useState(false);
   const { data: walletClient } = useWalletClient();
+
   const { status } = useGetWithdrawalStatus(transaction);
+  const { gas: proveGas } = useEstimateProveWithdrawalGas({
+    transactionHash: transaction.transactionHash,
+    disabled: status !== "ready-to-prove",
+  });
+
+  const { gas: finalizeGas } = useEstimateFinalizeWithdrawalGas({
+    transactionHash: transaction.transactionHash,
+    disabled: status !== "ready-to-finalize",
+  });
+
+  if (
+    status === "finalized" ||
+    status === "waiting-to-finalize" ||
+    status === "waiting-to-prove"
+  ) {
+    return <p className="font-medium text-xs">{status}</p>;
+  }
+
+  const buttonStyle = clsx(
+    "border-accent text-accent dark:border-accent-dark dark:text-accent-dark",
+    "text-xs rounded-[4px] border w-full py-3"
+  );
+
+  const activeButtonStyle = clsx(
+    "border-accent bg-accent text-accent-foreground",
+    buttonStyle
+  );
+
   return (
-    <>
-      {(status === "finalized" ||
-        status === "waiting-to-finalize" ||
-        status === "waiting-to-prove") && (
-        <p className="font-medium text-xs">{status}</p>
-      )}
-
-      {status === "ready-to-prove" && (
-        <Button
-          onClick={async () => {
-            if (!walletClient) return;
-            proveWithdrawal(
-              transaction.transactionHash,
-              walletClient.extend(walletActionsL1())
-            );
-          }}
-        >
-          prove
-        </Button>
-      )}
-
-      {status === "ready-to-finalize" && (
-        <Button
-          onClick={async () => {
-            if (!walletClient) return;
-            finalizeWithdrawal(
-              transaction.transactionHash,
-              walletClient.extend(walletActionsL1())
-            );
-          }}
-        >
-          finalize
-        </Button>
-      )}
-    </>
+    <Dialog.Root open={open} onOpenChange={setOpen}>
+      <Dialog.Trigger asChild>
+        <button className={buttonStyle}>
+          {status === "ready-to-prove" ? "prove" : "finalize"}
+        </button>
+      </Dialog.Trigger>
+      <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50" />
+      <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-lg flex flex-col gap-8">
+        <div className="flex flex-row justify-between items-start">
+          <Dialog.Title className="font-semibold text-2xl">
+            Withdrawal
+          </Dialog.Title>
+          <Dialog.Close>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M7 17L17 7"
+                stroke="#9E9BA6"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M7 7L17 17"
+                stroke="#9E9BA6"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </Dialog.Close>
+        </div>
+        <div>
+          <div>
+            <p className="text-[#9e9ba6] text-base font-normal">
+              Amount of withdrawal
+            </p>
+            <p className="font-medium text-xl">
+              {formatEther(amount)} {rollupChain.nativeCurrency.symbol}
+            </p>
+          </div>
+        </div>
+        <Dialog.Description asChild>
+          <div className="w-[632px] flex flex-col gap-6">
+            <ul className="list-image-[url(/vertical-dashes.svg)] list-inside">
+              <li className="flex flex-row justify-between">
+                <div className="flex flex-row gap-1">
+                  <WithdrawalStatusIcon status={status} step={0} />
+                  <p>Initiate Withdrawal</p>
+                </div>
+                <a
+                  href={blockExplorerURL(transaction)}
+                  target="_blank"
+                  className="text-accent dark:text-accent-dark text-xs flex flex-row gap-1 items-center"
+                >
+                  See transaction
+                  <ExternalLinkIcon />
+                </a>
+              </li>
+              <li>
+                <div className="flex flex-row gap-1">
+                  <WithdrawalStatusIcon status={status} step={1} />
+                  <p>Wait up to 1 hour</p>
+                </div>
+              </li>
+              <li>
+                <div className="flex flex-row gap-1">
+                  <WithdrawalStatusIcon status={status} step={2} />
+                  <p>Prove Withdrawal</p>
+                </div>
+              </li>
+              <li>
+                <div className="flex flex-row gap-1">
+                  <WithdrawalStatusIcon status={status} step={3} />
+                  <p>Wait 7 days</p>
+                </div>
+              </li>
+              <li>
+                <div className="flex flex-row gap-1">
+                  <WithdrawalStatusIcon status={status} step={4} />
+                  <p>Claim withdrawal</p>
+                </div>
+              </li>
+            </ul>
+            <div className="flex flex-row gap-2">
+              <Dialog.Close asChild>
+                <button className={buttonStyle}>Cancel</button>
+              </Dialog.Close>
+              {status === "ready-to-prove" && (
+                <button
+                  className={activeButtonStyle}
+                  onClick={() => {
+                    if (!walletClient) return;
+                    proveWithdrawal(
+                      transaction.transactionHash,
+                      walletClient.extend(walletActionsL1())
+                    ).then(() => setOpen(false));
+                  }}
+                >
+                  Prove withdrawal
+                </button>
+              )}
+              {status === "ready-to-finalize" && (
+                <button
+                  className={activeButtonStyle}
+                  onClick={() => {
+                    if (!walletClient) return;
+                    finalizeWithdrawal(
+                      transaction.transactionHash,
+                      walletClient.extend(walletActionsL1())
+                    ).then(() => setOpen(false));
+                  }}
+                >
+                  Claim withdrawal
+                </button>
+              )}
+            </div>
+            <p className="text-[#9e9ba6] font-normal text-base text-center">
+              You can close this window and reopen it later by clicking on the
+              transaction.
+            </p>
+          </div>
+        </Dialog.Description>
+      </Dialog.Content>
+    </Dialog.Root>
   );
 };

@@ -6,6 +6,7 @@ import {
   useChainId,
   useReadContract,
   useTransactionReceipt,
+  useWalletClient,
   type UseWalletClientReturnType,
 } from "wagmi";
 import {
@@ -22,9 +23,14 @@ import {
   rollupConfig,
   token,
 } from "./config";
-import { getWithdrawals } from "viem/op-stack";
+import {
+  getWithdrawals,
+  publicActionsL1,
+  publicActionsL2,
+} from "viem/op-stack";
 import { erc20Abi } from "./abi";
 import { StatusReturnType } from "./types";
+import { buildFinalizeWithdrawal, buildWithdrawalProof } from "./txs/withdraw";
 
 export const useIsParentChain = () => {
   const chainId = useChainId();
@@ -236,4 +242,116 @@ export const useTransactionStorage = () => {
   };
 
   return { transactions, addTransaction };
+};
+
+export const useEstimateInitiateWithdrawalGas = () => {
+  const { data: walletClient } = useWalletClient({ chainId: rollupChain.id });
+  const [status, setStatus] = useState<"loading" | "success" | "error">(
+    "loading"
+  );
+  const [gas, setGas] = useState<bigint>(0n);
+
+  useEffect(() => {
+    const fetchGas = async () => {
+      if (!walletClient) return;
+      await walletClient
+        .extend(publicActionsL2())
+        .estimateInitiateWithdrawalGas({
+          account: walletClient.account.address,
+          request: {
+            gas: 21000n,
+            to: walletClient.account.address,
+          },
+        })
+        .then((estimatedGas) => setGas(estimatedGas))
+        .catch(() => {
+          setStatus("error");
+        });
+      setStatus("success");
+    };
+    fetchGas();
+  }, [walletClient]);
+
+  return { status, gas };
+};
+
+export const useEstimateProveWithdrawalGas = ({
+  transactionHash,
+  disabled,
+}: {
+  transactionHash: Hex;
+  disabled?: boolean;
+}) => {
+  const { data: walletClient } = useWalletClient({
+    chainId: parentClient.chain.id,
+  });
+  const [status, setStatus] = useState<"loading" | "success" | "error">(
+    "loading"
+  );
+  const [gas, setGas] = useState<bigint>(0n);
+
+  useEffect(() => {
+    const fetchGas = async () => {
+      if (!walletClient || disabled) return;
+      const { data: proof } = await buildWithdrawalProof(transactionHash);
+      await walletClient
+        .extend(publicActionsL1())
+        .estimateProveWithdrawalGas({
+          account: walletClient.account.address,
+          targetChain: rollupChain,
+          l2OutputIndex: proof.l2OutputIndex,
+          outputRootProof: proof.outputRootProof,
+          withdrawalProof: proof.withdrawalProof,
+          withdrawal: proof.withdrawal,
+        })
+        .then((estimatedGas) => setGas(estimatedGas))
+        .catch(() => {
+          setStatus("error");
+        });
+      setStatus("success");
+    };
+    fetchGas();
+  }, [disabled, transactionHash, walletClient]);
+
+  return { status, gas };
+};
+
+export const useEstimateFinalizeWithdrawalGas = ({
+  transactionHash,
+  disabled,
+}: {
+  transactionHash: Hex;
+  disabled?: boolean;
+}) => {
+  const { data: walletClient } = useWalletClient({
+    chainId: parentClient.chain.id,
+  });
+  const [status, setStatus] = useState<"loading" | "success" | "error">(
+    "loading"
+  );
+  const [gas, setGas] = useState<bigint>(0n);
+
+  useEffect(() => {
+    const fetchGas = async () => {
+      if (!walletClient || disabled) return;
+      const { data: withdrawal } = await buildFinalizeWithdrawal(
+        transactionHash
+      );
+      await walletClient
+        .extend(publicActionsL1())
+        .estimateFinalizeWithdrawalGas({
+          account: walletClient.account.address,
+          targetChain: rollupChain,
+          withdrawal,
+        })
+        .then((estimatedGas) => setGas(estimatedGas))
+        .catch(() => {
+          setStatus("error");
+        });
+      setStatus("success");
+    };
+    fetchGas();
+  }, [disabled, transactionHash, walletClient]);
+
+  return { status, gas };
 };
