@@ -14,7 +14,7 @@ import {
   sepolia,
 } from "viem/chains";
 import { createConfig } from "wagmi";
-import { erc20Abi, optimismPortalAbi } from "./abi";
+import { erc20Abi, optimismPortalAbi, l1StandardBridgeAbi } from "./abi";
 
 import type { PublicL1ClientWithChain, PublicL2ClientWithChain } from "./types";
 import { chainConfig, publicActionsL1, publicActionsL2 } from "viem/op-stack";
@@ -37,7 +37,7 @@ const getChain = (chainId: number) => {
     sepolia,
     optimism,
     baseSepolia,
-    optimismSepolia,
+    optimismSepolia, 
   ];
   const detectedChain = supportedChains.find((chain) => chain.id === chainId);
   if (!detectedChain) {
@@ -85,6 +85,11 @@ export const rollupChain = defineChain({
         address: import.meta.env.VITE_L1_OPTIMISM_PORTAL_ADDRESS,
       },
     },
+    l1StandardBridge: {
+      [parentChain.id]: {
+        address: import.meta.env.VITE_L1_STANDARD_BRIDGE_ADDRESS,
+      },
+    },
   },
   iconBackground: import.meta.env.VITE_L2_ICON_BACKGROUND_COLOR,
   iconUrl: import.meta.env.VITE_L2_ICON_URL,
@@ -119,11 +124,32 @@ export const token = getContract({
   client: parentClient,
 });
 
+export const newToken1 = getContract({
+  address: import.meta.env.VITE_NEW_TOKEN1_ADDRESS,
+  abi: erc20Abi,
+  client: parentClient,
+});
+
+export const newToken2 = getContract({
+  address: import.meta.env.VITE_NEW_TOKEN2_ADDRESS,
+  abi: erc20Abi,
+  client: parentClient,
+});
+
+
+
 export const optimismPortal = getContract({
   address: import.meta.env.VITE_L1_OPTIMISM_PORTAL_ADDRESS,
   abi: optimismPortalAbi,
   client: parentClient,
 });
+
+export const l1StandardBridge = getContract({
+  address: import.meta.env.VITE_L1_STANDARD_BRIDGE_ADDRESS,
+  abi: l1StandardBridgeAbi,
+  client: parentClient,
+});
+
 
 export const config = createConfig({
   // connectors: connectors,
