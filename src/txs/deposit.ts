@@ -1,29 +1,36 @@
 import { toHex } from "viem";
 
-import { erc20Abi, optimismPortalAbi } from "../abi";
-import { parentClient, token, optimismPortal } from "../config";
+import { erc20Abi, optimismPortalAbi, l1StandardBridgeAbi } from "../abi";
+import { parentClient, 
+  token, newToken1, newToken2,
+  optimismPortal, l1StandardBridge } from "../config";
 import { WalletClient } from "../types";
 
 const simulateApproveTransaction = async (
   walletClient: WalletClient,
-  amount: bigint
+  amount: bigint,
+  useStandardBridge: boolean
 ) => {
+  const approveToAddress = useStandardBridge ? l1StandardBridge.address : optimismPortal.address;
+  const tokenAddress = useStandardBridge ? newToken1.address : newToken2.address;
   return await parentClient.simulateContract({
     account: walletClient.account.address,
-    address: token.address,
+    address: tokenAddress,
     abi: erc20Abi,
     functionName: "approve",
-    args: [optimismPortal.address, amount],
+    args: [approveToAddress, amount],
   });
 };
 
 export const approvalTransaction = async (
   walletClient: WalletClient,
-  amount: bigint
+  amount: bigint,
+  useStandardBridge: false //
 ) => {
   const approvalSimulation = await simulateApproveTransaction(
     walletClient,
-    amount
+    amount,
+    useStandardBridge
   );
   const approvalHash = await walletClient.writeContract(
     approvalSimulation.request
@@ -32,7 +39,24 @@ export const approvalTransaction = async (
     hash: approvalHash,
   });
 };
-const simulateDepositTransaction = async (
+
+
+const simulateDepositERC20Transaction = async (
+  walletClient: WalletClient,
+  l1Token: string,
+  l2Token: string,
+  amount: bigint
+) => {
+  return await parentClient.simulateContract({
+    account: walletClient.account.address,
+    address: l1StandardBridge.address,
+    abi: l1StandardBridgeAbi,
+    functionName: "depositERC20",
+    args: [l1Token, l2Token, amount, 0n, toHex(0)],
+  });
+};
+
+const simulateDepositERC20TransactionOptimism = async (
   walletClient: WalletClient,
   amount: bigint
 ) => {
@@ -47,16 +71,34 @@ const simulateDepositTransaction = async (
 
 export const depositTransaction = async (
   walletClient: WalletClient,
-  amount: bigint
+  l1Token: string,
+  l2Token: string,
+  amount: bigint,
+  useStandardBridge: boolean
 ) => {
-  const depositSimulation = await simulateDepositTransaction(
-    walletClient,
-    amount
-  );
-  const depositHash = await walletClient.writeContract(
-    depositSimulation.request
-  );
-  return await parentClient.waitForTransactionReceipt({
-    hash: depositHash,
-  });
+  if (useStandardBridge) {
+    const depositSimulation = await simulateDepositERC20Transaction(
+      walletClient,
+      l1Token,
+      l2Token,
+      amount
+    );
+    const depositHash = await walletClient.writeContract(
+      depositSimulation.request
+    );
+    return await parentClient.waitForTransactionReceipt({
+      hash: depositHash,
+    });
+  } else {
+    const depositSimulation = await simulateDepositERC20TransactionOptimism(
+      walletClient,
+      amount
+    );
+    const depositHash = await walletClient.writeContract(
+      depositSimulation.request
+    );
+    return await parentClient.waitForTransactionReceipt({
+      hash: depositHash,
+    });
+  }
 };
