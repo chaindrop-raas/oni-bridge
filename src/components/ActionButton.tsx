@@ -1,12 +1,19 @@
 import { clsx } from "clsx";
 import { useEffect, useState } from "react";
 import { useWalletClient } from "wagmi";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
 
 import { parentChain, rollupChain } from "../config";
 import { useIsParentChain } from "../hooks";
 import { BridgeMode } from "../types";
+import { WalletIcon } from "./icons";
 
-type ButtonMode = "approve" | "deposit" | "withdraw" | "network-error";
+type ButtonMode =
+  | "approve"
+  | "deposit"
+  | "withdraw"
+  | "network-error"
+  | "connect-wallet";
 
 export const ActionButton = ({
   disabled,
@@ -20,6 +27,7 @@ export const ActionButton = ({
   const isParentChain = useIsParentChain();
   const [buttonMode, setButtonMode] = useState<ButtonMode>("withdraw");
   const { data: walletClient } = useWalletClient();
+  const { openConnectModal } = useConnectModal();
 
   const chainForMode = mode === "deposit" ? parentChain : rollupChain;
 
@@ -31,7 +39,9 @@ export const ActionButton = ({
   };
 
   useEffect(() => {
-    if (
+    if (!walletClient?.account) {
+      setButtonMode("connect-wallet");
+    } else if (
       (isParentChain && mode === "withdraw") ||
       (!isParentChain && mode === "deposit")
     ) {
@@ -45,7 +55,7 @@ export const ActionButton = ({
     } else {
       setButtonMode("withdraw");
     }
-  }, [isParentChain, mode, depositApproved]);
+  }, [isParentChain, mode, depositApproved, walletClient?.account]);
 
   if (buttonMode === "network-error") {
     return (
@@ -59,6 +69,23 @@ export const ActionButton = ({
         )}
       >
         {labels[buttonMode]}
+      </button>
+    );
+  }
+
+  if (buttonMode === "connect-wallet") {
+    return (
+      <button
+        onClick={openConnectModal}
+        className={clsx(
+          "w-full rounded-[4px] py-3 px-4 text-sm",
+          "bg-accent dark:bg-accent-dark",
+          "text-accent-foreground dark:text-accent-foreground-dark",
+          "flex flex-row items-center justify-center gap-1"
+        )}
+      >
+        <WalletIcon />
+        Connect wallet
       </button>
     );
   }

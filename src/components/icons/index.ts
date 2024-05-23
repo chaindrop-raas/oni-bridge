@@ -1,3 +1,4 @@
-export { WithdrawalStatusIcon } from "./WithdrawalStatus";
-export { WithdrawalProgressIcon } from "./WithdrawalProgress";
 export { ExternalLinkIcon } from "./ExternalLink";
+export { WalletIcon } from "./Wallet";
+export { WithdrawalProgressIcon } from "./WithdrawalProgress";
+export { WithdrawalStatusIcon } from "./WithdrawalStatus";
