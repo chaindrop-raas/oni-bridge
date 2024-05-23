@@ -1,21 +1,12 @@
-import { clsx } from "clsx";
-import { toNumber } from "dnum";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { parseEther } from "viem";
 import { useAccount, useWalletClient } from "wagmi";
-
-import { parentChain, rollupChain, rollupClient } from "./config";
-import { Balance } from "./components/Balance";
+import { parentChain, rollupChain, token, newToken1, newToken2 } from "./config";
 import { approvalTransaction, depositTransaction } from "./txs/deposit";
-import { initiateWithdrawal } from "./txs/withdraw";
-import {
-  useCurrentChainBalance,
-  useGetAllowance,
-  useTransactionStorage,
-} from "./hooks";
-import type { BridgeMode, WalletClient } from "./types";
+import { Balance } from "./components/Balance";
+import { useCurrentChainBalance, useGetAllowance, useTransactionStorage } from "./hooks";
+import { BridgeMode, WalletClient } from "./types";
 import { formatBalance } from "./utils";
 import { walletActionsL1, walletActionsL2 } from "viem/op-stack";
 import { BridgeDirection } from "./components/BridgeDirection";
@@ -26,13 +17,29 @@ import { Tabs } from "./components/Tabs";
 
 type Inputs = {
   amount: bigint;
+  token: string;
+};
+
+const tokenMap = {
+  [token.address]: {
+    symbol: token.symbol,
+    l2Token: "0xL2TokenAddress1" // Replace with actual L2 token address
+  },
+  [newToken1.address]: {
+    symbol: newToken1.symbol,
+    l2Token: "0xL2TokenAddress2" // Replace with actual L2 token address
+  },
+  [newToken2.address]: {
+    symbol: newToken2.symbol,
+    l2Token: "0xL2TokenAddress3" // Replace with actual L2 token address
+  }
 };
 
 function App() {
   const balance = useCurrentChainBalance();
   const account = useAccount();
   const { data: walletClient } = useWalletClient();
-
+  
   const [isApproved, setApproved] = useState(false);
   const [actionButtonDisabled, setActionButtonDisabled] = useState(false);
   const [bridgeMode, setBridgeMode] = useState<BridgeMode>("deposit");
@@ -40,24 +47,21 @@ function App() {
 
   const logoUrl = import.meta.env.VITE_BRIDGE_LOGO_URL;
 
-  const {
-    formState: { errors },
-    handleSubmit,
-    register,
-    watch,
-  } = useForm<Inputs>({ defaultValues: { amount: 0n } });
+  const { formState: { errors }, handleSubmit, register, watch } = useForm<Inputs>({ defaultValues: { amount: 0n, token: token.address } });
   const amount = parseEther(watch("amount").toString());
-  const allowance = useGetAllowance(walletClient, amount);
+  const selectedTokenAddress = watch("token");
+  const allowance = useGetAllowance(walletClient, amount, selectedTokenAddress);
 
   const approvalFn = async (walletClient: WalletClient, amount: bigint) => {
     const l1WalletClient = walletClient.extend(walletActionsL1());
-    const transaction = await approvalTransaction(l1WalletClient, amount);
+    const transaction = await approvalTransaction(l1WalletClient, amount, selectedTokenAddress);
     addTransaction(transaction);
   };
 
   const depositFn = async (walletClient: WalletClient, amount: bigint) => {
     const l1WalletClient = walletClient.extend(walletActionsL1());
-    const transaction = await depositTransaction(l1WalletClient, amount);
+    const l2Token = tokenMap[selectedTokenAddress].l2Token;
+    const transaction = await depositTransaction(l1WalletClient, amount, selectedTokenAddress, l2Token);
     addTransaction(transaction);
   };
 
@@ -93,9 +97,7 @@ function App() {
 
   useEffect(() => {
     setApproved(allowance >= amount);
-    amount === 0n
-      ? setActionButtonDisabled(true)
-      : setActionButtonDisabled(false);
+    amount === 0n ? setActionButtonDisabled(true) : setActionButtonDisabled(false);
   }, [amount, allowance]);
 
   return (
@@ -111,33 +113,35 @@ function App() {
       <div className="mx-auto lg:w-[488px] flex flex-col gap-4">
         <Tabs bridgeMode={bridgeMode} setBridgeMode={setBridgeMode} />
         <form className="flex flex-col gap-1" onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex flex-col gap-2 rounded-xl bg-[#fafafa] px-8 pt-6 pb-8">
-            <BridgeDirection />
-            <div className="flex flex-row gap-2 items-center pt-6">
-              <div className="relative rounded-md shadow-sm flex-grow">
+          <div className="flex flex-col gap-1 rounded-xl bg-[#fafafa] px-8 pt-6 pb-8">
+            <BridgeDirection bridgeMode={bridgeMode} />
+            <div className="flex flex-row gap-4 items-start justify-between">
+              <div className="flex flex-1 flex-col gap-4">
+                <select
+                  className="block w-full rounded-lg border-[#D2D1D4] border-2 text-xl placeholder:text-[#D2D1D4]"
+                  {...register("token", { required: true })}
+                >
+                  <option value={token.address}>{token.symbol}</option>
+                  <option value={newToken1.address}>{newToken1.symbol}</option>
+                  <option value={newToken2.address}>{newToken2.symbol}</option>
+                </select>
                 <input
                   type="number"
                   step="any"
                   id="amount"
-                  min={0}
-                  placeholder="0.0"
-                  className={clsx(
-                    "block w-full rounded-lg border-[#D2D1D4] border-2 text-3xl placeholder:text-[#D2D1D4]",
-                    errors.amount && "text-red-900"
-                  )}
+                  className="block w-full rounded-lg border-[#D2D1D4] border-2 text-xl placeholder:text-[#D2D1D4]"
+                  placeholder="0.00"
+                  {...register("amount", { required: true })}
                   aria-invalid={errors.amount ? "true" : "false"}
-                  aria-describedby="amount-error"
-                  {...register("amount", {
-                    required: true,
-                    min: toNumber([1n, 18]),
-                    max: toNumber([balance?.value ?? 0n, 18]),
-                  })}
                 />
-                {errors.amount && (
+              </div>
+              <div className="pr-2 pt-1 text-gray-500">
+                {walletClient && (
                   <>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-8">
+                    <div className="h-5 w-5">
                       <svg
-                        className="h-5 w-5 text-red-500"
+                        className="h-5 w-5 text-red-600"
+                        xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
                         aria-hidden="true"
@@ -152,13 +156,23 @@ function App() {
                   </>
                 )}
               </div>
-              <p>{rollupClient.chain.nativeCurrency.symbol}</p>
+              <p>
+                {selectedTokenAddress === token.address
+                  ? token.symbol
+                  : selectedTokenAddress === newToken1.address
+                  ? newToken1.symbol
+                  : newToken2.symbol}
+              </p>
             </div>
             {errors.amount && (
               <p className="text-sm text-red-600" id="amount-error">
                 Amount must be between 0 and{" "}
                 {formatBalance(balance?.value ?? 0n, balance?.decimals ?? 18)}{" "}
-                {rollupClient.chain.nativeCurrency.symbol}
+                {selectedTokenAddress === token.address
+                  ? token.symbol
+                  : selectedTokenAddress === newToken1.address
+                  ? newToken1.symbol
+                  : newToken2.symbol}
               </p>
             )}
             <Balance amount={balance} />
