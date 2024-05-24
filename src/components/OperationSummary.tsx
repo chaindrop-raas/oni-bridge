@@ -1,9 +1,88 @@
 import { format } from "dnum";
-import { defineChain, encodeFunctionData, erc20Abi } from "viem";
-import { useEstimateGas, useWalletClient } from "wagmi";
+import { useEffect, useState } from "react";
+import { Account, defineChain, encodeFunctionData, erc20Abi } from "viem";
+import { useWalletClient } from "wagmi";
 import { l2ToL1MessagePasserAbi, optimismPortalAbi } from "../abi";
-import { rollupChain } from "../config";
+import {
+  optimismPortal,
+  parentChain,
+  parentClient,
+  rollupChain,
+  rollupClient,
+  token,
+} from "../config";
 import { BridgeMode } from "../types";
+
+const encodeApproveData = (amount: bigint) => {
+  return encodeFunctionData({
+    abi: erc20Abi,
+    functionName: "approve",
+    args: [optimismPortal.address, amount],
+  });
+};
+
+const encodeDepositData = (account: Account, amount: bigint) => {
+  return encodeFunctionData({
+    abi: optimismPortalAbi,
+    functionName: "depositERC20Transaction",
+    args: [account.address, amount, 0n, 50000n, false, "0x00"],
+  });
+};
+
+const estimateDepositGas = async ({
+  amount,
+  account,
+  depositApproved,
+}: {
+  account: Account;
+  amount: bigint;
+  depositApproved: boolean;
+}) => {
+  if (depositApproved) {
+    return await parentClient.estimateGas({
+      account: account,
+      value: amount,
+      to: optimismPortal.address,
+      data: encodeDepositData(account, amount),
+    });
+  } else {
+    return await parentClient.estimateGas({
+      account: account,
+      to: token.address,
+      data: encodeApproveData(amount),
+    });
+  }
+};
+
+const estimateWithdrawGas = async ({ account }: { account: Account }) => {
+  return await rollupClient.estimateGas({
+    account: account,
+    to: rollupChain.contracts.l2ToL1MessagePasser.address,
+    data: encodeFunctionData({
+      abi: l2ToL1MessagePasserAbi,
+      functionName: "initiateWithdrawal",
+      args: [account.address, 50000n, "0x"],
+    }),
+  });
+};
+
+const getGasEstimate = async ({
+  amount,
+  account,
+  depositApproved,
+  mode,
+}: {
+  account: Account;
+  amount: bigint;
+  depositApproved: boolean;
+  mode: BridgeMode;
+}) => {
+  if (mode === "deposit") {
+    return estimateDepositGas({ amount, account, depositApproved });
+  } else {
+    return estimateWithdrawGas({ account });
+  }
+};
 
 export const OperationSummary = ({
   amount,
@@ -17,51 +96,31 @@ export const OperationSummary = ({
   depositApproved: boolean;
 }) => {
   const { iconUrl, name, nativeCurrency } = targetChain;
+  const gasChain = mode === "deposit" ? parentChain : rollupChain;
   const { decimals } = nativeCurrency;
 
   const { data: walletClient } = useWalletClient();
 
-  const addressZero = "0x0000000000000000000000000000000000000000";
-  const encodedApproveData = encodeFunctionData({
-    abi: erc20Abi,
-    functionName: "approve",
-    args: [import.meta.env.VITE_L1_OPTIMISM_PORTAL_ADDRESS, amount],
-  });
-
-  const encodedDepositData = encodeFunctionData({
-    abi: optimismPortalAbi,
-    functionName: "depositERC20Transaction",
-    args: [
-      walletClient?.account.address ?? addressZero,
-      amount,
-      0n,
-      50000n,
-      false,
-      "0x00",
-    ],
-  });
-
-  const encodedWithdrawData = encodeFunctionData({
-    abi: l2ToL1MessagePasserAbi,
-    functionName: "initiateWithdrawal",
-    args: [walletClient?.account.address ?? addressZero, 50000n, "0x"],
-  });
-
-  const { data: gasEstimate, error } = useEstimateGas({
-    to: import.meta.env.VITE_L1_OPTIMISM_PORTAL_ADDRESS,
-    data:
-      mode === "deposit"
-        ? depositApproved
-          ? encodedDepositData
-          : encodedApproveData
-        : encodedWithdrawData,
-  });
-  if (error) console.error(error);
+  const [gasEstimate, setGasEstimate] = useState<bigint | void>();
 
   const timings = {
     deposit: "~1 minute",
     withdraw: "~7 days",
   };
+
+  useEffect(() => {
+    if (!walletClient?.account) {
+      return;
+    }
+    getGasEstimate({
+      account: walletClient.account,
+      amount,
+      depositApproved,
+      mode,
+    }).then((estimate) => {
+      setGasEstimate(estimate);
+    });
+  }, [walletClient, amount, mode, depositApproved]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -84,7 +143,7 @@ export const OperationSummary = ({
           <p>Gas fee</p>
           <p>
             {format([gasEstimate ?? 0n, decimals])}{" "}
-            {walletClient?.chain.nativeCurrency.symbol}
+            {gasChain.nativeCurrency.symbol}
           </p>
         </div>
         <div className="flex flex-row justify-between text-xs text-gray-400">

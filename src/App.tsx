@@ -92,7 +92,7 @@ function App() {
   const targetChain = bridgeMode === "deposit" ? rollupChain : parentChain;
 
   useEffect(() => {
-    setApproved(allowance >= amount);
+    setApproved(amount > 0n && allowance >= amount);
     amount === 0n
       ? setActionButtonDisabled(true)
       : setActionButtonDisabled(false);
