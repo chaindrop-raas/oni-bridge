@@ -112,14 +112,17 @@ export const OperationSummary = ({
     if (!walletClient?.account) {
       return;
     }
-    getGasEstimate({
-      account: walletClient.account,
-      amount,
-      depositApproved,
-      mode,
-    }).then((estimate) => {
-      setGasEstimate(estimate);
-    });
+    const debounce = setTimeout(() => {
+      getGasEstimate({
+        account: walletClient.account,
+        amount,
+        depositApproved,
+        mode,
+      }).then((estimate) => {
+        setGasEstimate(estimate);
+      });
+    }, 100);
+    return () => clearTimeout(debounce);
   }, [walletClient, amount, mode, depositApproved]);
 
   return (
