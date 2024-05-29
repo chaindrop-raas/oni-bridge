@@ -12,7 +12,7 @@ import {
   useEstimateFinalizeWithdrawalGas,
 } from "../hooks";
 import { finalizeWithdrawal, proveWithdrawal } from "../txs/withdraw";
-import { ExternalLinkIcon, WithdrawalStatusIcon } from "./icons";
+import { CloseIcon, ExternalLinkIcon, WithdrawalStatusIcon } from "./icons";
 import { blockExplorerURL } from "../utils";
 
 export const WithdrawalActions = ({
@@ -68,28 +68,7 @@ export const WithdrawalActions = ({
             Withdrawal
           </Dialog.Title>
           <Dialog.Close>
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7 17L17 7"
-                stroke="#9E9BA6"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M7 7L17 17"
-                stroke="#9E9BA6"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <CloseIcon />
           </Dialog.Close>
         </div>
         <div>
@@ -103,7 +82,7 @@ export const WithdrawalActions = ({
           </div>
         </div>
         <Dialog.Description asChild>
-          <div className="w-[632px] flex flex-col gap-6">
+          <div className="w-96 flex flex-col gap-6">
             <ul className="list-image-[url(/vertical-dashes.svg)] list-inside">
               <li className="flex flex-row justify-between">
                 <div className="flex flex-row gap-1">
@@ -177,7 +156,7 @@ export const WithdrawalActions = ({
                 </button>
               )}
             </div>
-            <p className="text-[#9e9ba6] font-normal text-base text-center">
+            <p className="text-[#9e9ba6] font-normal text-sm text-center">
               You can close this window and reopen it later by clicking on the
               transaction.
             </p>

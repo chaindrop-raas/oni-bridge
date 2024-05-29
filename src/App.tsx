@@ -23,6 +23,7 @@ import { OperationSummary } from "./components/OperationSummary";
 import { ActionButton } from "./components/ActionButton";
 import { Transactions } from "./components/Transactions";
 import { Tabs } from "./components/Tabs";
+import { DepositModal } from "./components/DepositModal";
 
 type Inputs = {
   amount: bigint;
@@ -35,6 +36,7 @@ function App() {
 
   const [isApproved, setApproved] = useState(false);
   const [actionButtonDisabled, setActionButtonDisabled] = useState(false);
+  const [showDepositModal, setShowDepositModal] = useState(false);
   const [bridgeMode, setBridgeMode] = useState<BridgeMode>("deposit");
   const { transactions, addTransaction } = useTransactionStorage();
 
@@ -75,7 +77,7 @@ function App() {
     try {
       if (bridgeMode === "deposit") {
         if (isApproved) {
-          await depositFn(walletClient, submittedAmount);
+          setShowDepositModal(true);
         } else {
           await approvalFn(walletClient, submittedAmount);
         }
@@ -181,6 +183,14 @@ function App() {
       <div className="w-full lg:w-[488px] m-auto flex flex-col gap-4">
         <Transactions transactions={transactions} />
       </div>
+      <DepositModal
+        amount={amount}
+        open={showDepositModal}
+        setOpen={setShowDepositModal}
+        triggerDeposit={() => {
+          depositFn(walletClient as WalletClient, amount);
+        }}
+      />
     </div>
   );
 }

@@ -10,6 +10,7 @@ import {
   type UseWalletClientReturnType,
 } from "wagmi";
 import {
+  encodeFunctionData,
   toHex,
   type Hex,
   type WaitForTransactionReceiptReturnType,
@@ -28,7 +29,7 @@ import {
   publicActionsL1,
   publicActionsL2,
 } from "viem/op-stack";
-import { erc20Abi } from "./abi";
+import { erc20Abi, optimismPortalAbi } from "./abi";
 import { StatusReturnType } from "./types";
 import { buildFinalizeWithdrawal, buildWithdrawalProof } from "./txs/withdraw";
 
@@ -242,6 +243,76 @@ export const useTransactionStorage = () => {
   };
 
   return { transactions, addTransaction };
+};
+
+export const useEstimateApproveGas = ({ amount }: { amount: bigint }) => {
+  const { data: walletClient } = useWalletClient({
+    chainId: parentClient.chain.id,
+  });
+  const [status, setStatus] = useState<"loading" | "success" | "error">(
+    "loading"
+  );
+  const [gas, setGas] = useState<bigint>(0n);
+
+  useEffect(() => {
+    const fetchGas = async () => {
+      if (!walletClient) return;
+      const account = walletClient.account;
+      await parentClient
+        .estimateGas({
+          account,
+          to: token.address,
+          data: encodeFunctionData({
+            abi: erc20Abi,
+            functionName: "approve",
+            args: [optimismPortal.address, amount],
+          }),
+        })
+        .then(setGas)
+        .catch(() => {
+          setStatus("error");
+        });
+      setStatus("success");
+    };
+    fetchGas();
+  }, [walletClient, amount]);
+
+  return { status, gas };
+};
+
+export const useEstimateDepositGas = ({ amount }: { amount: bigint }) => {
+  const { data: walletClient } = useWalletClient({
+    chainId: parentClient.chain.id,
+  });
+  const [status, setStatus] = useState<"loading" | "success" | "error">(
+    "loading"
+  );
+  const [gas, setGas] = useState<bigint>(0n);
+
+  useEffect(() => {
+    const fetchGas = async () => {
+      if (!walletClient) return;
+      const account = walletClient.account;
+      await parentClient
+        .estimateGas({
+          account,
+          to: optimismPortal.address,
+          data: encodeFunctionData({
+            abi: optimismPortalAbi,
+            functionName: "depositERC20Transaction",
+            args: [account.address, amount, 0n, 50000n, false, "0x00"],
+          }),
+        })
+        .then(setGas)
+        .catch(() => {
+          setStatus("error");
+        });
+      setStatus("success");
+    };
+    fetchGas();
+  }, [walletClient, amount]);
+
+  return { status, gas };
 };
 
 export const useEstimateInitiateWithdrawalGas = () => {
