@@ -13,6 +13,7 @@ import { initiateWithdrawal } from "./txs/withdraw";
 import {
   useCurrentChainBalance,
   useGetAllowance,
+  useIsParentChain,
   useTransactionStorage,
 } from "./hooks";
 import type { BridgeMode, WalletClient } from "./types";
@@ -24,6 +25,7 @@ import { ActionButton } from "./components/ActionButton";
 import { Transactions } from "./components/Transactions";
 import { Tabs } from "./components/Tabs";
 import { DepositModal } from "./components/DepositModal";
+import { WithdrawalModal } from "./components/WithdrawalModal";
 
 type Inputs = {
   amount: bigint;
@@ -37,10 +39,23 @@ function App() {
   const [isApproved, setApproved] = useState(false);
   const [actionButtonDisabled, setActionButtonDisabled] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
+  const [withdrawalButtonEnabled, setWithdrawalButtonEnabled] = useState(true);
+  const [acknowledgementOne, setAcknowledgementOne] = useState(false);
+  const [acknowledgementTwo, setAcknowledgementTwo] = useState(false);
   const [bridgeMode, setBridgeMode] = useState<BridgeMode>("deposit");
   const { transactions, addTransaction } = useTransactionStorage();
+  const { isParentChain, isChildChain } = useIsParentChain();
 
   const logoUrl = import.meta.env.VITE_BRIDGE_LOGO_URL;
+
+  const handleWithdrawalModalToggle = (isOpen: boolean) => {
+    setShowWithdrawalModal(isOpen);
+    if (!isOpen) {
+      setAcknowledgementOne(false);
+      setAcknowledgementTwo(false);
+    }
+  };
 
   const {
     formState: { errors },
@@ -75,14 +90,14 @@ function App() {
     if (!account.isConnected) return;
     setActionButtonDisabled(true);
     try {
-      if (bridgeMode === "deposit") {
+      if (bridgeMode === "deposit" && isParentChain) {
         if (isApproved) {
           setShowDepositModal(true);
         } else {
           await approvalFn(walletClient, submittedAmount);
         }
-      } else if (bridgeMode === "withdraw") {
-        await withdrawFn(walletClient, submittedAmount);
+      } else if (bridgeMode === "withdraw" && isChildChain) {
+        handleWithdrawalModalToggle(true);
       }
     } catch (error) {
       console.error(error);
@@ -145,8 +160,8 @@ function App() {
                         aria-hidden="true"
                       >
                         <path
-                          clip-rule="evenodd"
-                          fill-rule="evenodd"
+                          clipRule="evenodd"
+                          fillRule="evenodd"
                           d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
                         />
                       </svg>
@@ -191,6 +206,64 @@ function App() {
           depositFn(walletClient as WalletClient, amount);
         }}
       />
+      <WithdrawalModal
+        amount={amount}
+        open={showWithdrawalModal}
+        setOpen={handleWithdrawalModalToggle}
+        status="initializing"
+      >
+        <div className="flex flex-row gap-2 items-center">
+          <input
+            type="checkbox"
+            checked={acknowledgementOne}
+            onChange={() => setAcknowledgementOne(!acknowledgementOne)}
+          />
+          <p className="text-sm text-[#9e9ba6]">
+            I understand it will take ~7 days until my funds are claimable on{" "}
+            {parentChain.name}.
+          </p>
+        </div>
+        <div className="flex flex-row gap-2 items-center">
+          <input
+            type="checkbox"
+            checked={acknowledgementTwo}
+            onChange={() => setAcknowledgementTwo(!acknowledgementTwo)}
+          />
+          <p className="text-sm text-[#9e9ba6]">
+            I understand the ~7 day timer does not start until I prove my
+            withdrawal.
+          </p>
+        </div>
+        <div className="flex flex-row gap-2">
+          <button
+            className="border-accent text-accent dark:border-accent-dark dark:text-accent-dark text-xs rounded-[4px] border w-full py-3"
+            onClick={() => {
+              handleWithdrawalModalToggle(false);
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            disabled={
+              !(acknowledgementOne && acknowledgementTwo) ||
+              !withdrawalButtonEnabled
+            }
+            className="border-accent text-accent dark:border-accent-dark dark:text-accent-dark bg-accent text-accent-foreground text-xs rounded-[4px] border w-full py-3 disabled:bg-[#fafafa] disabled:text-[#D2D1D4] disabled:border-none"
+            onClick={() => {
+              setWithdrawalButtonEnabled(false);
+              withdrawFn(walletClient as WalletClient, amount)
+                .then(() => {
+                  handleWithdrawalModalToggle(false);
+                })
+                .finally(() => {
+                  setWithdrawalButtonEnabled(true);
+                });
+            }}
+          >
+            Initiate withdrawal
+          </button>
+        </div>
+      </WithdrawalModal>
     </div>
   );
 }
