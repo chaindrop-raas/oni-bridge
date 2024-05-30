@@ -203,7 +203,7 @@ function App() {
         open={showDepositModal}
         setOpen={setShowDepositModal}
         triggerDeposit={() => {
-          depositFn(walletClient as WalletClient, amount);
+          return depositFn(walletClient as WalletClient, amount);
         }}
       />
       <WithdrawalModal
@@ -248,7 +248,7 @@ function App() {
               !(acknowledgementOne && acknowledgementTwo) ||
               !withdrawalButtonEnabled
             }
-            className="border-accent text-accent dark:border-accent-dark dark:text-accent-dark bg-accent text-accent-foreground text-xs rounded-[4px] border w-full py-3 disabled:bg-[#fafafa] disabled:text-[#D2D1D4] disabled:border-none"
+            className="border-accent text-accent dark:border-accent-dark dark:text-accent-dark bg-accent text-accent-foreground text-xs rounded-[4px] border w-full py-3 disabled:bg-[#fafafa] disabled:text-[#D2D1D4] disabled:border-none disabled:cursor-not-allowed"
             onClick={() => {
               setWithdrawalButtonEnabled(false);
               withdrawFn(walletClient as WalletClient, amount)

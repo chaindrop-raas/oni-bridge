@@ -209,6 +209,7 @@ export const useGetWithdrawalStatus = (
 
   useEffect(() => {
     const fetchStatus = async () => {
+      setIsLoading(true);
       const withdrawalStatus = await parentClient.getWithdrawalStatus({
         receipt: transaction,
         targetChain: rollupChain,
