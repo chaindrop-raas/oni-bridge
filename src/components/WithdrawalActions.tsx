@@ -8,6 +8,36 @@ import { useGetWithdrawalStatus } from "../hooks";
 import { finalizeWithdrawal, proveWithdrawal } from "../txs/withdraw";
 import { WithdrawalModal } from "./WithdrawalModal";
 
+const buttonStyle = clsx(
+  "border-accent text-accent dark:border-accent-dark dark:text-accent-dark",
+  "text-xs rounded-[4px] border w-full py-3",
+  "disabled:bg-[#fafafa] disabled:text-[#D2D1D4] disabled:border-none disabled:cursor-not-allowed"
+);
+
+const activeButtonStyle = clsx("bg-accent text-accent-foreground", buttonStyle);
+
+const WithdrawalButton = ({
+  children,
+  triggerFn,
+}: {
+  children: React.ReactNode;
+  triggerFn: () => Promise<void>;
+}) => {
+  const [enabled, setEnabled] = useState(true);
+  return (
+    <button
+      disabled={!enabled}
+      className={activeButtonStyle}
+      onClick={() => {
+        setEnabled(false);
+        triggerFn().finally(() => setEnabled(true));
+      }}
+    >
+      {children}
+    </button>
+  );
+};
+
 export const WithdrawalActions = ({
   transaction,
   amount,
@@ -27,16 +57,6 @@ export const WithdrawalActions = ({
   ) {
     return <p className="font-medium text-xs">{status}</p>;
   }
-
-  const buttonStyle = clsx(
-    "border-accent text-accent dark:border-accent-dark dark:text-accent-dark",
-    "text-xs rounded-[4px] border w-full py-3"
-  );
-
-  const activeButtonStyle = clsx(
-    "bg-accent text-accent-foreground",
-    buttonStyle
-  );
 
   const trigger = (
     <button className={buttonStyle}>
@@ -58,32 +78,30 @@ export const WithdrawalActions = ({
           Cancel
         </button>
         {status === "ready-to-prove" && (
-          <button
-            className={activeButtonStyle}
-            onClick={() => {
+          <WithdrawalButton
+            triggerFn={async () => {
               if (!walletClient) return;
-              proveWithdrawal(
+              return proveWithdrawal(
                 transaction.transactionHash,
                 walletClient.extend(walletActionsL1())
               ).then(() => setOpen(false));
             }}
           >
             Prove withdrawal
-          </button>
+          </WithdrawalButton>
         )}
         {status === "ready-to-finalize" && (
-          <button
-            className={activeButtonStyle}
-            onClick={() => {
+          <WithdrawalButton
+            triggerFn={async () => {
               if (!walletClient) return;
-              finalizeWithdrawal(
+              return finalizeWithdrawal(
                 transaction.transactionHash,
                 walletClient.extend(walletActionsL1())
               ).then(() => setOpen(false));
             }}
           >
             Claim withdrawal
-          </button>
+          </WithdrawalButton>
         )}
       </div>
     </WithdrawalModal>
