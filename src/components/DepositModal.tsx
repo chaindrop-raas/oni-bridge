@@ -4,6 +4,7 @@ import { formatEther } from "viem";
 import { parentChain, rollupChain } from "../config";
 import clsx from "clsx";
 import { useEstimateDepositGas } from "../hooks";
+import { useState } from "react";
 
 const DetailRow = ({ label, value }: { label: string; value: string }) => (
   <div>
@@ -21,12 +22,14 @@ export const DepositModal = ({
   amount: bigint;
   open: boolean;
   setOpen: (value: boolean) => void;
-  triggerDeposit: () => void;
+  triggerDeposit: () => Promise<void>;
 }) => {
   const { gas: gasEstimate } = useEstimateDepositGas({ amount });
+  const [buttonEnabled, setButtonEnabled] = useState(true);
   const buttonStyle = clsx(
     "border-accent text-accent dark:border-accent-dark dark:text-accent-dark",
-    "text-xs rounded-[4px] border w-full py-3"
+    "text-xs rounded-[4px] border w-full py-3",
+    "disabled:bg-[#fafafa] disabled:text-[#D2D1D4] disabled:border-none disabled:cursor-not-allowed"
   );
 
   const activeButtonStyle = clsx(
@@ -64,7 +67,20 @@ export const DepositModal = ({
             <Dialog.Close asChild>
               <button className={buttonStyle}>Cancel</button>
             </Dialog.Close>
-            <button className={activeButtonStyle} onClick={triggerDeposit}>
+            <button
+              className={activeButtonStyle}
+              disabled={!buttonEnabled}
+              onClick={() => {
+                setButtonEnabled(false);
+                triggerDeposit()
+                  .then(() => {
+                    setOpen(false);
+                  })
+                  .finally(() => {
+                    setButtonEnabled(true);
+                  });
+              }}
+            >
               Deposit
             </button>
           </div>
