@@ -35,12 +35,15 @@ import { buildFinalizeWithdrawal, buildWithdrawalProof } from "./txs/withdraw";
 
 export const useIsParentChain = () => {
   const chainId = useChainId();
-  return chainId === parentClient.chain.id;
+  return {
+    isParentChain: chainId === parentClient.chain.id,
+    isChildChain: chainId === rollupChain.id,
+  };
 };
 
 export const useCurrentChainBalance = () => {
   const queryClient = useQueryClient();
-  const isParentChain = useIsParentChain();
+  const { isParentChain } = useIsParentChain();
   const account = useAccount();
 
   const config = isParentChain ? { token: token.address } : {};

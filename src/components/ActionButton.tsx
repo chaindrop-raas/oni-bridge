@@ -24,7 +24,7 @@ export const ActionButton = ({
   mode: BridgeMode;
   depositApproved: boolean;
 }) => {
-  const isParentChain = useIsParentChain();
+  const { isParentChain, isChildChain } = useIsParentChain();
   const [buttonMode, setButtonMode] = useState<ButtonMode>("withdraw");
   const { data: walletClient } = useWalletClient();
   const { openConnectModal } = useConnectModal();
@@ -43,7 +43,7 @@ export const ActionButton = ({
       setButtonMode("connect-wallet");
     } else if (
       (isParentChain && mode === "withdraw") ||
-      (!isParentChain && mode === "deposit")
+      (isChildChain && mode === "deposit")
     ) {
       setButtonMode("network-error");
     } else if (mode === "deposit") {
@@ -55,7 +55,13 @@ export const ActionButton = ({
     } else {
       setButtonMode("withdraw");
     }
-  }, [isParentChain, mode, depositApproved, walletClient?.account]);
+  }, [
+    isChildChain,
+    isParentChain,
+    mode,
+    depositApproved,
+    walletClient?.account,
+  ]);
 
   if (buttonMode === "network-error") {
     return (

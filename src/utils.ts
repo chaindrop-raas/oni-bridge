@@ -51,8 +51,6 @@ export const blockExplorerURL = (tx: WaitForTransactionReceiptReturnType) => {
 
 export const statusStep = (status: StatusReturnType) => {
   switch (status) {
-    case "retrieving-status":
-      return 0;
     case "waiting-to-prove":
       return 1;
     case "ready-to-prove":
