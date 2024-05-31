@@ -13,6 +13,9 @@ export default {
         "accent-foreground-dark":
           process.env.BRIDGE_ACCENT_COLOR_FOREGROUND_DARK,
       },
+      fontSize: {
+        xxs: "0.625rem",
+      },
     },
   },
   plugins: [formsPlugin()],

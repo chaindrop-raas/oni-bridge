@@ -264,6 +264,25 @@ function App() {
           </button>
         </div>
       </WithdrawalModal>
+      <footer className="text-xxs text-[#D2D1D4] flex flex-row gap-2 items-center justify-items-start px-14">
+        <img
+          src="/images/chaindrop-logo-grayscale.svg"
+          alt="powered by Chaindrop"
+          width={20}
+          height={20}
+        />
+        <div className="flex flex-col gap-0">
+          <p>
+            Powered by <a href="https://www.chaindrop.com/">Chaindrop</a>
+          </p>
+          <p>
+            Licensed under{" "}
+            <a href="https://creativecommons.org/licenses/by-sa/4.0/">
+              CC BY-SA 4.0
+            </a>
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
