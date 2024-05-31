@@ -1,9 +1,7 @@
-// import { connectorsForWallets } from "@rainbow-me/rainbowkit";
-// import {
-//   rainbowWallet,
-//   metaMaskWallet,
-//   coinbaseWallet,
-// } from "@rainbow-me/rainbowkit/wallets";
+import {
+  connectorsForWallets,
+  getDefaultWallets,
+} from "@rainbow-me/rainbowkit";
 import { createPublicClient, defineChain, getContract, http } from "viem";
 import {
   base,
@@ -18,17 +16,6 @@ import { erc20Abi, optimismPortalAbi } from "./abi";
 
 import type { PublicL1ClientWithChain, PublicL2ClientWithChain } from "./types";
 import { chainConfig, publicActionsL1, publicActionsL2 } from "viem/op-stack";
-
-/**
- * NB: adding custom connectors for wallets relies on WalletConnect.
- * WalletConnect, in turn, shows errors in the console when developing locally.
- * Dodging the issue for now by commenting out the custom connectors code.
- */
-
-/**
- * TODO:
- * - load walletConnect project id from the environment:
- */
 
 const getChain = (chainId: number) => {
   const supportedChains = [
@@ -90,18 +77,18 @@ export const rollupChain = defineChain({
   iconUrl: import.meta.env.VITE_L2_ICON_URL,
 });
 
-// const connectors = connectorsForWallets(
-//   [
-//     {
-//       groupName: "Suggested",
-//       wallets: [rainbowWallet, metaMaskWallet, coinbaseWallet],
-//     },
-//   ],
-//   {
-//     appName: `{customTestnet.name} Bridge`,
-//     projectId: "{process.env.VITE_WALLET_CONNECT_PROJECT_ID}",
-//   }
-// );
+const projectId = import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID as string;
+const appName = `${rollupChain.name} Bridge`;
+
+const { wallets } = getDefaultWallets({
+  appName,
+  projectId,
+});
+
+const connectors = connectorsForWallets(wallets, {
+  projectId,
+  appName,
+});
 
 const l1Transport = import.meta.env.VITE_L1_PUBLIC_RPC_URL
   ? http(import.meta.env.VITE_L1_PUBLIC_RPC_URL, { batch: true })
@@ -130,7 +117,7 @@ export const optimismPortal = getContract({
 });
 
 export const config = createConfig({
-  // connectors: connectors,
+  connectors: connectors,
   chains: [parentChain, rollupChain],
   transports: {
     [rollupChain.id]: http(),
