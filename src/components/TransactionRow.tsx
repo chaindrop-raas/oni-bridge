@@ -126,12 +126,12 @@ export const TransactionRow = ({
         )}
         <div>
           <p className="font-medium text-xs">{formattedDate}</p>
-          <p className="font-normal text-xs text-[#9E9BA6]">{formattedTime}</p>
+          <p className="font-normal text-xs text-subdued">{formattedTime}</p>
         </div>
       </TableCell>
       <TableCell>
         <p className="font-medium text-xs">{titleCase(txType(transaction))}</p>
-        <p className="font-normal text-xs text-[#9E9BA6]">
+        <p className="font-normal text-xs text-subdued">
           <a
             href={blockExplorerURL(transaction)}
             target="_blank"

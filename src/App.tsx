@@ -128,7 +128,7 @@ function App() {
       <div className="mx-auto lg:w-[488px] flex flex-col gap-4">
         <Tabs bridgeMode={bridgeMode} setBridgeMode={setBridgeMode} />
         <form className="flex flex-col gap-1" onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex flex-col gap-2 rounded-xl bg-[#fafafa] px-8 pt-6 pb-8">
+          <div className="flex flex-col gap-2 rounded-xl bg-zinc-50 px-8 pt-6 pb-8">
             <BridgeDirection />
             <div className="flex flex-row gap-2 items-center pt-6">
               <div className="relative rounded-md shadow-sm flex-grow">
@@ -139,7 +139,7 @@ function App() {
                   min={0}
                   placeholder="0.0"
                   className={clsx(
-                    "block w-full rounded-lg border-[#D2D1D4] border-2 text-3xl placeholder:text-[#D2D1D4]",
+                    "block w-full rounded-lg border-faded border-2 text-3xl placeholder:text-faded",
                     errors.amount && "text-red-900"
                   )}
                   aria-invalid={errors.amount ? "true" : "false"}
@@ -180,7 +180,7 @@ function App() {
             )}
             <Balance amount={balance} />
           </div>
-          <div className="flex flex-col gap-4 rounded-xl bg-[#fafafa] px-8 pt-6 pb-8">
+          <div className="flex flex-col gap-4 rounded-xl bg-zinc-50 px-8 pt-6 pb-8">
             <OperationSummary
               amount={amount}
               mode={bridgeMode}
@@ -218,7 +218,7 @@ function App() {
             checked={acknowledgementOne}
             onChange={() => setAcknowledgementOne(!acknowledgementOne)}
           />
-          <p className="text-sm text-[#9e9ba6]">
+          <p className="text-sm text-subdued">
             I understand it will take ~7 days until my funds are claimable on{" "}
             {parentChain.name}.
           </p>
@@ -229,7 +229,7 @@ function App() {
             checked={acknowledgementTwo}
             onChange={() => setAcknowledgementTwo(!acknowledgementTwo)}
           />
-          <p className="text-sm text-[#9e9ba6]">
+          <p className="text-sm text-subdued">
             I understand the ~7 day timer does not start until I prove my
             withdrawal.
           </p>
@@ -248,7 +248,7 @@ function App() {
               !(acknowledgementOne && acknowledgementTwo) ||
               !withdrawalButtonEnabled
             }
-            className="border-accent text-accent dark:border-accent-dark dark:text-accent-dark bg-accent text-accent-foreground text-xs rounded-[4px] border w-full py-3 disabled:bg-[#fafafa] disabled:text-[#D2D1D4] disabled:border-none disabled:cursor-not-allowed"
+            className="border-accent text-accent dark:border-accent-dark dark:text-accent-dark bg-accent text-accent-fg text-xs rounded-[4px] border w-full py-3 disabled:bg-zinc-50 disabled:text-faded disabled:border-none disabled:cursor-not-allowed"
             onClick={() => {
               setWithdrawalButtonEnabled(false);
               withdrawFn(walletClient as WalletClient, amount)
@@ -264,7 +264,7 @@ function App() {
           </button>
         </div>
       </WithdrawalModal>
-      <footer className="text-xxs text-[#D2D1D4] flex flex-row gap-2 items-center justify-items-start px-14">
+      <footer className="text-xxs text-faded flex flex-row gap-2 items-center justify-items-start px-14">
         <img
           src="/images/chaindrop-logo-grayscale.svg"
           alt="powered by Chaindrop"

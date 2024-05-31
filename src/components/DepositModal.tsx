@@ -8,7 +8,7 @@ import { useState } from "react";
 
 const DetailRow = ({ label, value }: { label: string; value: string }) => (
   <div>
-    <p className="text-[#9e9ba6] text-base font-normal">{label}</p>
+    <p className="text-subdued text-base font-normal">{label}</p>
     <p className="font-medium text-xl">{value}</p>
   </div>
 );
@@ -29,11 +29,11 @@ export const DepositModal = ({
   const buttonStyle = clsx(
     "border-accent text-accent dark:border-accent-dark dark:text-accent-dark",
     "text-xs rounded-[4px] border w-full py-3",
-    "disabled:bg-[#fafafa] disabled:text-[#D2D1D4] disabled:border-none disabled:cursor-not-allowed"
+    "disabled:bg-zinc-50 disabled:text-faded disabled:border-none disabled:cursor-not-allowed"
   );
 
   const activeButtonStyle = clsx(
-    "border-accent bg-accent text-accent-foreground",
+    "border-accent bg-accent text-accent-fg",
     buttonStyle
   );
   return (

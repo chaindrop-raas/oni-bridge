@@ -17,7 +17,7 @@ const ChainInfo = ({
     <div className="w-2/5 flex flex-row items-center gap-3">
       <ChainIcon chain={chain} />
       <div className="">
-        <p className="text-[#9E9BA6]">{label}</p>
+        <p className="text-subdued">{label}</p>
         <p className="text-xl">{chain.name}</p>
       </div>
     </div>

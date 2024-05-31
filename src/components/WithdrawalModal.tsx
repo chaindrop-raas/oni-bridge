@@ -38,7 +38,7 @@ export const WithdrawalModal = ({
         </div>
         <div>
           <div>
-            <p className="text-[#9e9ba6] text-base font-normal">
+            <p className="text-subdued text-base font-normal">
               Amount of withdrawal
             </p>
             <p className="font-medium text-xl">
@@ -91,7 +91,7 @@ export const WithdrawalModal = ({
               </li>
             </ul>
             {children}
-            <p className="text-[#9e9ba6] font-normal text-sm text-center">
+            <p className="text-subdued font-normal text-sm text-center">
               You can close this window and reopen it later by clicking on the
               transaction.
             </p>
