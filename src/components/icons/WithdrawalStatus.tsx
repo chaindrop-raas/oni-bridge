@@ -13,6 +13,20 @@ const SVG = ({ children }: { children: React.ReactNode }) => (
   </svg>
 );
 
+const ClockIcon = () => {
+  return (
+    <>
+      <circle cx="14" cy="14" r="7.5" stroke="#9E9BA6" strokeWidth="1.25" />
+      <path
+        d="M14 9L14 14L17.3333 16.9167"
+        stroke="#9E9BA6"
+        strokeWidth="1.25"
+        strokeLinecap="round"
+      />
+    </>
+  );
+};
+
 export const WithdrawalStatusIcon = ({
   status,
   step,
@@ -60,13 +74,7 @@ export const WithdrawalStatusIcon = ({
   if (step === 1) {
     return (
       <SVG>
-        <circle cx="12" cy="12" r="9" stroke="#9E9BA6" strokeWidth="1.5" />
-        <path
-          d="M12 6L12 12L16 15.5"
-          stroke="#9E9BA6"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
+        <ClockIcon />
       </SVG>
     );
   }
@@ -87,19 +95,7 @@ export const WithdrawalStatusIcon = ({
   if (step === 3) {
     return (
       <SVG>
-        <path
-          d="M15 7L20 12L15 17"
-          stroke="#9E9BA6"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M5 12L19 12"
-          stroke="#9E9BA6"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
+        <ClockIcon />
       </SVG>
     );
   }
