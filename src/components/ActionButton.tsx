@@ -86,7 +86,7 @@ export const ActionButton = ({
         className={clsx(
           "w-full rounded-[4px] py-3 px-4 text-sm",
           "bg-accent dark:bg-accent-dark",
-          "text-accent-foreground dark:text-accent-foreground-dark",
+          "text-accent-fg dark:text-accent-fg-dark",
           "flex flex-row items-center justify-center gap-1"
         )}
       >
@@ -103,7 +103,7 @@ export const ActionButton = ({
         "w-full rounded-[4px] py-3 px-4 text-sm disabled:bg-gray-300",
         "disabled:text-slate-400 disabled:cursor-not-allowed",
         "bg-accent dark:bg-accent-dark",
-        "text-accent-foreground dark:text-accent-foreground-dark"
+        "text-accent-fg dark:text-accent-fg-dark"
       )}
       disabled={disabled}
     >

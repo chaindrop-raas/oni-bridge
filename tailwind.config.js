@@ -9,9 +9,10 @@ export default {
       colors: {
         accent: process.env.BRIDGE_ACCENT_COLOR,
         "accent-dark": process.env.BRIDGE_ACCENT_COLOR_DARK,
-        "accent-foreground": process.env.BRIDGE_ACCENT_COLOR_FOREGROUND,
-        "accent-foreground-dark":
-          process.env.BRIDGE_ACCENT_COLOR_FOREGROUND_DARK,
+        "accent-fg": process.env.BRIDGE_ACCENT_COLOR_FOREGROUND,
+        "accent-fg-dark": process.env.BRIDGE_ACCENT_COLOR_FOREGROUND_DARK,
+        subdued: process.env.BRIDGE_SUBDUED_COLOR,
+        faded: process.env.BRIDGE_FADED_COLOR,
       },
       fontSize: {
         xxs: "0.625rem",

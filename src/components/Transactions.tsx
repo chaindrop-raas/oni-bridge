@@ -5,7 +5,7 @@ const ThCell = ({ children }: { children: React.ReactElement | string }) => {
   return (
     <th
       scope="col"
-      className="font-normal text-xs text-[#9E9BA6] text-left px-2 py-4"
+      className="font-normal text-xs text-subdued text-left px-2 py-4"
     >
       {children}
     </th>
