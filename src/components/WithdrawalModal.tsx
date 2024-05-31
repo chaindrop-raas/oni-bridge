@@ -48,7 +48,7 @@ export const WithdrawalModal = ({
         </div>
         <Dialog.Description asChild>
           <div className="max-w-2xl min-w-xl flex flex-col gap-6">
-            <ul className="list-image-[url(/vertical-dashes.svg)] list-inside">
+            <ul className="list-image-[url(/images/vertical-dashes.svg)] list-inside">
               <li className="flex flex-row justify-between">
                 <div className="flex flex-row gap-1">
                   <WithdrawalStatusIcon status={status} step={0} />
