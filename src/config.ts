@@ -103,9 +103,13 @@ export const rollupChain = defineChain({
 //   }
 // );
 
+const l1Transport = import.meta.env.VITE_L1_PUBLIC_RPC_URL
+  ? http(import.meta.env.VITE_L1_PUBLIC_RPC_URL, { batch: true })
+  : http();
+
 export const parentClient = createPublicClient({
   chain: parentChain,
-  transport: http(),
+  transport: l1Transport,
 }).extend(publicActionsL1()) as PublicL1ClientWithChain;
 
 export const rollupClient = createPublicClient({
