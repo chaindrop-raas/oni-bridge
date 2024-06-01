@@ -8,15 +8,15 @@ export const CloseIcon = () => {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
+        className="stroke-subdued"
         d="M7 17L17 7"
-        stroke="#9E9BA6"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <path
+        className="stroke-subdued"
         d="M7 7L17 17"
-        stroke="#9E9BA6"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
