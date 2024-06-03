@@ -7,12 +7,16 @@ export const initiateWithdrawal = async (
   amount: bigint,
   walletClient: L2WalletClient
 ) => {
-  const args = await parentClient.buildInitiateWithdrawal({
-    to: walletClient.account.address,
-    value: amount,
+  const hash = await walletClient.initiateWithdrawal({
+    account: walletClient.account,
+    chain: rollupChain,
+    request: {
+      to: walletClient.account.address,
+      value: amount,
+      gas: 21000n,
+    },
   });
 
-  const hash = await walletClient.initiateWithdrawal(args);
   return await rollupClient.waitForTransactionReceipt({ hash });
 };
 

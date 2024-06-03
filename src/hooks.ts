@@ -304,7 +304,7 @@ export const useEstimateDepositGas = ({ amount }: { amount: bigint }) => {
           data: encodeFunctionData({
             abi: optimismPortalAbi,
             functionName: "depositERC20Transaction",
-            args: [account.address, amount, 0n, 50000n, false, "0x00"],
+            args: [account.address, amount, 0n, 50000n, false, toHex(0)],
           }),
         })
         .then(setGas)
