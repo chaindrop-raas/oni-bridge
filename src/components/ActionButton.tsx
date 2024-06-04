@@ -70,7 +70,7 @@ export const ActionButton = ({
           walletClient?.switchChain({ id: chainForMode.id });
         }}
         className={clsx(
-          "w-full rounded-[4px] py-3 px-4 text-sm disabled:bg-gray-300",
+          "w-full rounded-[4px] py-3 px-4 text-sm",
           buttonMode === "network-error" && "bg-red-400 text-white"
         )}
       >
@@ -100,10 +100,9 @@ export const ActionButton = ({
     <button
       type="submit"
       className={clsx(
-        "w-full rounded-[4px] py-3 px-4 text-sm disabled:bg-gray-300",
-        "disabled:text-slate-400 disabled:cursor-not-allowed",
-        "bg-accent dark:bg-accent-dark",
-        "text-accent-fg dark:text-accent-fg-dark"
+        "w-full rounded-[4px] py-3 px-4 text-sm",
+        "disabled:bg-faded disabled:text-subdued disabled:cursor-not-allowed",
+        "bg-accent text-accent-fg"
       )}
       disabled={disabled}
     >

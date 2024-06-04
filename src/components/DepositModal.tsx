@@ -29,7 +29,7 @@ export const DepositModal = ({
   const buttonStyle = clsx(
     "border-accent text-accent dark:border-accent-dark dark:text-accent-dark",
     "text-xs rounded-[4px] border w-full py-3",
-    "disabled:bg-zinc-50 disabled:text-faded disabled:border-none disabled:cursor-not-allowed"
+    "disabled:bg-faded disabled:text-subdued disabled:border-none disabled:cursor-not-allowed"
   );
 
   const activeButtonStyle = clsx(
@@ -38,8 +38,8 @@ export const DepositModal = ({
   );
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50" />
-      <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg flex flex-col gap-8">
+      <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-75" />
+      <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-8 rounded-lg flex flex-col gap-8 bg-base text-foreground">
         <div className="flex flex-row justify-between items-start">
           <Dialog.Title className="font-semibold text-2xl">
             Deposit
