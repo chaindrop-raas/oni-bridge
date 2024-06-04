@@ -119,7 +119,7 @@ export const TransactionRow = ({
   }, [block]);
 
   return (
-    <tr className="even:bg-gray-50">
+    <tr className="">
       <TableCell className="flex flex-row gap-2 items-center">
         {transactionType === "withdrawal" && (
           <WithdrawalProgressIcon transaction={transaction} />

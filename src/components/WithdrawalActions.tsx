@@ -11,7 +11,7 @@ import { WithdrawalModal } from "./WithdrawalModal";
 const buttonStyle = clsx(
   "border-accent text-accent dark:border-accent-dark dark:text-accent-dark",
   "text-xs rounded-[4px] border w-full py-3",
-  "disabled:bg-zinc-50 disabled:text-faded disabled:border-none disabled:cursor-not-allowed"
+  "disabled:bg-grouping disabled:text-faded disabled:border-none disabled:cursor-not-allowed"
 );
 
 const activeButtonStyle = clsx("bg-accent text-accent-fg", buttonStyle);

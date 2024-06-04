@@ -1,9 +1,31 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bridge</title>
+    <script>
+      function updateTheme() {
+        if (
+          window.matchMedia &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches
+        ) {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // Initial check
+        updateTheme();
+
+        // Listen for changes in the system theme
+        window
+          .matchMedia("(prefers-color-scheme: dark)")
+          .addEventListener("change", updateTheme);
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>

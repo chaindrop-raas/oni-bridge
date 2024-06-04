@@ -116,7 +116,7 @@ function App() {
   }, [amount, allowance]);
 
   return (
-    <div className="flex flex-col gap-6 my-6">
+    <div className="flex flex-col gap-6 py-6 bg-base text-foreground min-h-svh">
       <div className="flex flex-row justify-between px-6">
         <div className="">
           <img src={logoUrl} alt="logo" width={40} height={40} />
@@ -125,10 +125,10 @@ function App() {
           <ConnectButton showBalance={false} />
         </div>
       </div>
-      <div className="mx-auto lg:w-[488px] flex flex-col gap-4">
+      <div className="mx-auto lg:w-[488px] flex flex-col gap-4 text-foreground">
         <Tabs bridgeMode={bridgeMode} setBridgeMode={setBridgeMode} />
         <form className="flex flex-col gap-1" onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex flex-col gap-2 rounded-xl bg-zinc-50 px-8 pt-6 pb-8">
+          <div className="flex flex-col gap-2 rounded-xl bg-grouping px-8 pt-6 pb-8">
             <BridgeDirection />
             <div className="flex flex-row gap-2 items-center pt-6">
               <div className="relative rounded-md shadow-sm flex-grow">
@@ -139,7 +139,7 @@ function App() {
                   min={0}
                   placeholder="0.0"
                   className={clsx(
-                    "block w-full rounded-lg border-faded border-2 text-3xl placeholder:text-faded",
+                    "block w-full rounded-lg border-faded border-2 text-3xl bg-base text-foreground placeholder:text-faded",
                     errors.amount && "text-red-900"
                   )}
                   aria-invalid={errors.amount ? "true" : "false"}
@@ -180,7 +180,7 @@ function App() {
             )}
             <Balance amount={balance} />
           </div>
-          <div className="flex flex-col gap-4 rounded-xl bg-zinc-50 px-8 pt-6 pb-8">
+          <div className="flex flex-col gap-4 rounded-xl bg-grouping text-foreground px-8 pt-6 pb-8">
             <OperationSummary
               amount={amount}
               mode={bridgeMode}
@@ -248,7 +248,10 @@ function App() {
               !(acknowledgementOne && acknowledgementTwo) ||
               !withdrawalButtonEnabled
             }
-            className="border-accent text-accent dark:border-accent-dark dark:text-accent-dark bg-accent text-accent-fg text-xs rounded-[4px] border w-full py-3 disabled:bg-zinc-50 disabled:text-faded disabled:border-none disabled:cursor-not-allowed"
+            className={clsx(
+              "border-accent text-accent dark:border-accent-dark dark:text-accent-dark bg-accent text-accent-fg text-xs rounded-[4px] border w-full py-3",
+              "disabled:bg-grouping disabled:text-faded disabled:border-none disabled:cursor-not-allowed"
+            )}
             onClick={() => {
               setWithdrawalButtonEnabled(false);
               withdrawFn(walletClient as WalletClient, amount)

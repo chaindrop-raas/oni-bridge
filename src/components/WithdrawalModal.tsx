@@ -26,8 +26,8 @@ export const WithdrawalModal = ({
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       {trigger && <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>}
-      <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50" />
-      <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-lg flex flex-col gap-8">
+      <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-75" />
+      <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-8 rounded-lg flex flex-col gap-8 bg-base text-foreground">
         <div className="flex flex-row justify-between items-start">
           <Dialog.Title className="font-semibold text-2xl">
             Withdrawal

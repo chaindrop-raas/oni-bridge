@@ -71,7 +71,13 @@ export const OperationSummary = ({
         <div className="flex flex-row justify-between text-sm mb-3">
           <div className="flex flex-row gap-1 font-medium">
             <p>Receive on</p>
-            <img src={iconUrl} width={16} height={16} alt={name} />
+            <img
+              className="rounded-full w-4 h-4"
+              src={iconUrl}
+              width={16}
+              height={16}
+              alt={name}
+            />
             <p>{name}</p>
           </div>
           <p className="">
