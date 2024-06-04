@@ -12,8 +12,8 @@ import type { StatusReturnType, TransactionType } from "./types";
 
 export const formatBalance = (balance: bigint, decimals: number) => {
   return format([balance, decimals], {
-    digits: 2,
-    trailingZeros: true,
+    digits: 18,
+    trailingZeros: false,
   });
 };
 
