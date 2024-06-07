@@ -14,7 +14,7 @@ const ChainInfo = ({
   label: string;
 }) => {
   return (
-    <div className="w-2/5 flex flex-row items-center gap-3">
+    <div className="w-[45%] flex flex-row items-center gap-3">
       <ChainIcon chain={chain} />
       <div className="">
         <p className="text-subdued">{label}</p>
