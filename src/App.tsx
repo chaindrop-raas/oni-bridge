@@ -128,30 +128,30 @@ function App() {
       <div className="mx-auto lg:w-[488px] flex flex-col gap-4 text-foreground">
         <Tabs bridgeMode={bridgeMode} setBridgeMode={setBridgeMode} />
         <form className="flex flex-col gap-1" onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex flex-col gap-2 rounded-xl bg-grouping px-8 pt-6 pb-8">
+          <div className="flex flex-col gap-6 rounded-xl bg-grouping px-8 pt-6 pb-8">
             <BridgeDirection />
-            <div className="flex flex-row gap-2 items-center pt-6">
-              <div className="relative rounded-md shadow-sm flex-grow">
-                <input
-                  type="number"
-                  step="any"
-                  id="amount"
-                  min={0}
-                  placeholder="0.0"
-                  className={clsx(
-                    "block w-full rounded-lg border-faded border-2 text-3xl bg-base text-foreground placeholder:text-faded",
-                    errors.amount && "text-red-900"
-                  )}
-                  aria-invalid={errors.amount ? "true" : "false"}
-                  aria-describedby="amount-error"
-                  {...register("amount", {
-                    required: true,
-                    min: toNumber([1n, 18]),
-                    max: toNumber([balance?.value ?? 0n, 18]),
-                  })}
-                />
-                {errors.amount && (
-                  <>
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-row gap-2 justify-between p-1 rounded-lg bg-base text-foreground border-faded border-2">
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="any"
+                    id="amount"
+                    min={0}
+                    placeholder="0.0"
+                    className={clsx(
+                      "text-3xl placeholder:text-faded border-none bg-inherit focus:ring-0",
+                      errors.amount && "text-red-900"
+                    )}
+                    aria-invalid={errors.amount ? "true" : "false"}
+                    aria-describedby="amount-error"
+                    {...register("amount", {
+                      required: true,
+                      min: toNumber([1n, 18]),
+                      max: toNumber([balance?.value ?? 0n, 18]),
+                    })}
+                  />
+                  {errors.amount && (
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-8">
                       <svg
                         className="h-5 w-5 text-red-500"
@@ -166,19 +166,21 @@ function App() {
                         />
                       </svg>
                     </div>
-                  </>
-                )}
+                  )}
+                </div>
+                <p className="flex-none self-center pr-4">
+                  {rollupClient.chain.nativeCurrency.symbol}
+                </p>
               </div>
-              <p>{rollupClient.chain.nativeCurrency.symbol}</p>
+              {errors.amount && (
+                <p className="text-sm text-red-600" id="amount-error">
+                  Amount must be between 0 and{" "}
+                  {formatBalance(balance?.value ?? 0n, balance?.decimals ?? 18)}{" "}
+                  {rollupClient.chain.nativeCurrency.symbol}
+                </p>
+              )}
+              <Balance amount={balance} />
             </div>
-            {errors.amount && (
-              <p className="text-sm text-red-600" id="amount-error">
-                Amount must be between 0 and{" "}
-                {formatBalance(balance?.value ?? 0n, balance?.decimals ?? 18)}{" "}
-                {rollupClient.chain.nativeCurrency.symbol}
-              </p>
-            )}
-            <Balance amount={balance} />
           </div>
           <div className="flex flex-col gap-4 rounded-xl bg-grouping text-foreground px-8 pt-6 pb-8">
             <OperationSummary
