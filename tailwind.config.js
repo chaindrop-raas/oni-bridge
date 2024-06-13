@@ -54,6 +54,9 @@ export default {
       fontSize: {
         xxs: "0.625rem",
       },
+      screens: {
+        body: "488px",
+      },
     },
   },
   plugins: [formsPlugin(), autoDark],
