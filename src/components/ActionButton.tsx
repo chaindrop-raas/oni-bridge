@@ -16,13 +16,15 @@ type ButtonMode =
   | "connect-wallet";
 
 export const ActionButton = ({
+  depositApproved,
   disabled,
   mode,
-  depositApproved,
+  onSubmit,
 }: {
+  depositApproved: boolean;
   disabled: boolean;
   mode: BridgeMode;
-  depositApproved: boolean;
+  onSubmit: () => void;
 }) => {
   const { isParentChain, isChildChain } = useIsParentChain();
   const [buttonMode, setButtonMode] = useState<ButtonMode>("withdraw");
@@ -98,7 +100,7 @@ export const ActionButton = ({
 
   return (
     <button
-      type="submit"
+      onClick={onSubmit}
       className={clsx(
         "w-full rounded-[4px] py-3 px-4 text-sm",
         "disabled:bg-faded disabled:text-subdued disabled:cursor-not-allowed",

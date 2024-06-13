@@ -206,6 +206,7 @@ function App() {
                   mode={bridgeMode}
                   depositApproved={isApproved}
                   disabled={!account.isConnected || actionButtonDisabled}
+                  onSubmit={handleSubmit(onSubmit)}
                 />
               </div>
               <div className="w-full m-auto flex flex-col gap-4 px-2 pt-6 md:pt-0">
