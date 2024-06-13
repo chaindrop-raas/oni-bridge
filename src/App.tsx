@@ -118,18 +118,18 @@ function App() {
   return (
     <div className="flex flex-col justify-between bg-base text-foreground min-h-svh">
       <div className="flex flex-col gap-6">
-        <div className="flex flex-row justify-between md:pt-6 md:px-6 md:pb-6 pt-4 px-4">
+        <div className="flex flex-row justify-between lg:pt-6 lg:px-6 lg:pb-6 pt-4 px-4">
           <img src={logoUrl} alt="logo" width={40} height={40} />
           <ConnectButton showBalance={false} />
         </div>
-        <div className="flex flex-col gap-4 mx-auto text-foreground">
-          <Tabs bridgeMode={bridgeMode} setBridgeMode={setBridgeMode} />
+        <div className="flex flex-col gap-4 text-foreground">
           <div className="flex flex-col gap-1">
             <form
-              className="flex flex-col gap-1"
+              className="flex flex-col gap-1 max-w-screen-body lg:w-[488px] mx-auto"
               onSubmit={handleSubmit(onSubmit)}
             >
-              <div className="flex flex-col gap-6 rounded-xl md:bg-grouping md:px-8 px-4 pt-6 pb-8">
+              <Tabs bridgeMode={bridgeMode} setBridgeMode={setBridgeMode} />
+              <div className="flex flex-col gap-6 rounded-xl lg:bg-grouping lg:px-8 px-4 pt-6 pb-8">
                 <BridgeDirection />
                 <div className="flex flex-col gap-2">
                   <div className="flex flex-row gap-2 justify-between p-1 rounded-lg sm:rounded-none bg-base text-foreground border-faded border-2">
@@ -188,12 +188,12 @@ function App() {
               </div>
             </form>
 
-            <div className="flex flex-col-reverse md:flex-col gap-6 divide-y divide-solid md:divide-none">
+            <div className="flex flex-col-reverse lg:flex-col gap-6 divide-y divide-solid lg:divide-none">
               <div
                 className={clsx(
-                  "flex flex-col gap-4 text-foreground md:px-8 px-4 pt-6 pb-8",
-                  "sticky bottom-0 left-0 right-0 md:static",
-                  "md:rounded-xl bg-grouping"
+                  "flex flex-col gap-4 text-foreground lg:px-8 px-4 pt-6 pb-8",
+                  "sticky bottom-0 left-0 right-0 lg:static w-full lg:max-w-screen-body lg:w-[488px] m-auto",
+                  "lg:rounded-xl bg-grouping"
                 )}
               >
                 <OperationSummary
@@ -209,7 +209,7 @@ function App() {
                   onSubmit={handleSubmit(onSubmit)}
                 />
               </div>
-              <div className="w-full m-auto flex flex-col gap-4 px-2 pt-6 md:pt-0">
+              <div className="w-full m-auto max-w-screen-body flex flex-col gap-4 px-2 pt-6 lg:pt-0">
                 <Transactions transactions={transactions} />
               </div>
             </div>
@@ -217,7 +217,7 @@ function App() {
         </div>
       </div>
 
-      <footer className="text-xxs text-faded flex-row gap-2 items-center justify-items-start px-14 hidden md:flex">
+      <footer className="text-xxs text-faded flex-row gap-2 items-center justify-items-start px-14 hidden lg:flex">
         <img
           src="/images/chaindrop-logo-grayscale.svg"
           alt="powered by Chaindrop"
