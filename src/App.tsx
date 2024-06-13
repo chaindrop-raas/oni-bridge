@@ -251,24 +251,26 @@ function App() {
         setOpen={handleWithdrawalModalToggle}
         status="initializing"
       >
-        <div className="flex flex-row gap-2 items-center">
+        <div className="flex flex-row gap-2 items-start">
           <input
             type="checkbox"
             checked={acknowledgementOne}
+            className="mt-1"
             onChange={() => setAcknowledgementOne(!acknowledgementOne)}
           />
-          <p className="text-sm text-subdued">
+          <p className="md:text-sm text-xs text-subdued">
             I understand it will take ~7 days until my funds are claimable on{" "}
             {parentChain.name}.
           </p>
         </div>
-        <div className="flex flex-row gap-2 items-center">
+        <div className="flex flex-row gap-2 items-start">
           <input
             type="checkbox"
             checked={acknowledgementTwo}
+            className="mt-1"
             onChange={() => setAcknowledgementTwo(!acknowledgementTwo)}
           />
-          <p className="text-sm text-subdued">
+          <p className="md:text-sm text-xs text-subdued">
             I understand the ~7 day timer does not start until I prove my
             withdrawal.
           </p>
