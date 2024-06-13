@@ -118,20 +118,19 @@ function App() {
   return (
     <div className="flex flex-col gap-6 py-6 bg-base text-foreground min-h-svh">
       <div className="flex flex-row justify-between px-6">
-        <div className="">
-          <img src={logoUrl} alt="logo" width={40} height={40} />
-        </div>
-        <div>
-          <ConnectButton showBalance={false} />
-        </div>
+        <img src={logoUrl} alt="logo" width={40} height={40} />
+        <ConnectButton showBalance={false} />
       </div>
-      <div className="mx-auto lg:w-[488px] flex flex-col gap-4 text-foreground">
+      <div className="flex flex-col gap-4 mx-auto text-foreground">
         <Tabs bridgeMode={bridgeMode} setBridgeMode={setBridgeMode} />
-        <form className="flex flex-col gap-1" onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex flex-col gap-6 rounded-xl bg-grouping px-8 pt-6 pb-8">
+        <form
+          className="flex flex-col gap-1 divide-y divide-solid md:divide-none"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <div className="flex flex-col gap-6 rounded-xl md:bg-grouping md:px-8 px-4 pt-6 pb-8">
             <BridgeDirection />
             <div className="flex flex-col gap-2">
-              <div className="flex flex-row gap-2 justify-between p-1 rounded-lg bg-base text-foreground border-faded border-2">
+              <div className="flex flex-row gap-2 justify-between p-1 rounded-lg sm:rounded-none bg-base text-foreground border-faded border-2">
                 <div className="relative">
                   <input
                     type="number"
@@ -140,7 +139,7 @@ function App() {
                     min={0}
                     placeholder="0.0"
                     className={clsx(
-                      "text-3xl placeholder:text-faded border-none bg-inherit focus:ring-0",
+                      "w-full text-3xl placeholder:text-faded border-none bg-inherit focus:ring-0",
                       errors.amount && "text-red-900"
                     )}
                     aria-invalid={errors.amount ? "true" : "false"}
@@ -182,7 +181,7 @@ function App() {
               <Balance amount={balance} />
             </div>
           </div>
-          <div className="flex flex-col gap-4 rounded-xl bg-grouping text-foreground px-8 pt-6 pb-8">
+          <div className="flex flex-col gap-4 md:rounded-xl md:bg-grouping text-foreground md:px-8 px-4 pt-6 pb-8">
             <OperationSummary
               amount={amount}
               mode={bridgeMode}
@@ -197,7 +196,7 @@ function App() {
           </div>
         </form>
       </div>
-      <div className="w-full lg:w-[488px] m-auto flex flex-col gap-4">
+      <div className="w-full m-auto flex flex-col gap-4 px-2">
         <Transactions transactions={transactions} />
       </div>
       <DepositModal
