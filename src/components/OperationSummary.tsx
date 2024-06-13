@@ -66,7 +66,7 @@ export const OperationSummary = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <h3 className="text-xl font-medium">Summary</h3>
+      <h3 className="text-xl font-medium hidden md:block">Summary</h3>
       <div className="flex flex-col gap-1">
         <div className="flex flex-row justify-between text-sm mb-3">
           <div className="flex flex-row gap-1 font-medium">
