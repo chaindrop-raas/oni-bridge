@@ -5,6 +5,7 @@ import { rollupChain } from "../config";
 import { CloseIcon, ExternalLinkIcon, WithdrawalStatusIcon } from "./icons";
 import { blockExplorerURL } from "../utils";
 import { StatusReturnType } from "../types";
+import clsx from "clsx";
 
 export const WithdrawalModal = ({
   amount,
@@ -27,27 +28,33 @@ export const WithdrawalModal = ({
     <Dialog.Root open={open} onOpenChange={setOpen}>
       {trigger && <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>}
       <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-75" />
-      <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-8 rounded-lg flex flex-col gap-8 bg-base text-foreground">
-        <div className="flex flex-row justify-between items-start">
-          <Dialog.Title className="font-semibold text-2xl">
-            Withdrawal
-          </Dialog.Title>
-          <Dialog.Close>
-            <CloseIcon />
-          </Dialog.Close>
-        </div>
-        <div>
-          <div>
-            <p className="text-subdued text-base font-normal">
-              Amount of withdrawal
-            </p>
-            <p className="font-medium text-xl">
-              {formatEther(amount)} {rollupChain.nativeCurrency.symbol}
-            </p>
-          </div>
-        </div>
-        <Dialog.Description asChild>
-          <div className="max-w-2xl min-w-xl flex flex-col gap-6">
+      <Dialog.Content className="fixed inset-0 flex justify-center items-center">
+        <div
+          className={clsx(
+            "p-8 lg:rounded-lg flex flex-col gap-8 bg-base text-foreground fixed lg:relative",
+            "top-0 bottom-0 left-0 right-0",
+            "mx-auto min-w-96 justify-between"
+          )}
+        >
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-row justify-between items-start">
+              <Dialog.Title className="font-semibold text-2xl">
+                Withdrawal
+              </Dialog.Title>
+              <Dialog.Close>
+                <CloseIcon />
+              </Dialog.Close>
+            </div>
+            <div>
+              <div>
+                <p className="text-subdued text-base font-normal">
+                  Amount of withdrawal
+                </p>
+                <p className="font-medium text-xl">
+                  {formatEther(amount)} {rollupChain.nativeCurrency.symbol}
+                </p>
+              </div>
+            </div>
             <ul className="list-image-[url(/images/vertical-dashes.svg)] list-inside">
               <li className="flex flex-row justify-between">
                 <div className="flex flex-row gap-1">
@@ -90,13 +97,15 @@ export const WithdrawalModal = ({
                 </div>
               </li>
             </ul>
+          </div>
+          <div className="flex flex-col gap-4">
             {children}
-            <p className="text-subdued font-normal text-sm text-center">
+            <p className="text-subdued font-normal text-sm text-center hidden lg:block">
               You can close this window and reopen it later by clicking on the
               transaction.
             </p>
           </div>
-        </Dialog.Description>
+        </div>
       </Dialog.Content>
     </Dialog.Root>
   );
