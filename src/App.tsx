@@ -132,7 +132,7 @@ function App() {
               <div className="flex flex-col gap-6 rounded-xl lg:bg-grouping lg:px-8 px-4 pt-6 pb-8">
                 <BridgeDirection />
                 <div className="flex flex-col gap-2">
-                  <div className="flex flex-row gap-2 justify-between p-1 rounded-lg sm:rounded-none bg-base text-foreground border-faded border-2">
+                  <div className="flex flex-row gap-2 justify-between p-1 rounded-lg bg-base text-foreground border-faded border-2">
                     <div className="relative">
                       <input
                         type="number"
