@@ -17,7 +17,7 @@ import {
   useTransactionStorage,
 } from "./hooks";
 import type { BridgeMode, WalletClient } from "./types";
-import { formatBalance } from "./utils";
+import { formatBalance, isCustomGasToken } from "./utils";
 import { walletActionsL1, walletActionsL2 } from "viem/op-stack";
 import { BridgeDirection } from "./components/BridgeDirection";
 import { OperationSummary } from "./components/OperationSummary";
@@ -91,7 +91,9 @@ function App() {
     setActionButtonDisabled(true);
     try {
       if (bridgeMode === "deposit" && isParentChain) {
-        if (isApproved) {
+        // if the chain does not use a custom gas token or if it does and the
+        // amount is approved, show the deposit modal
+        if (!isCustomGasToken() || isApproved) {
           setShowDepositModal(true);
         } else {
           await approvalFn(walletClient, submittedAmount);
@@ -109,7 +111,7 @@ function App() {
   const targetChain = bridgeMode === "deposit" ? rollupChain : parentChain;
 
   useEffect(() => {
-    setApproved(amount > 0n && allowance >= amount);
+    setApproved(!isCustomGasToken() || (amount > 0n && allowance >= amount));
     amount === 0n
       ? setActionButtonDisabled(true)
       : setActionButtonDisabled(false);
