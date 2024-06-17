@@ -1,5 +1,9 @@
 import { format } from "dnum";
-import { getAddress, type WaitForTransactionReceiptReturnType } from "viem";
+import {
+  getAddress,
+  type WaitForTransactionReceiptReturnType,
+  zeroAddress,
+} from "viem";
 
 import {
   optimismPortal,
@@ -16,6 +20,9 @@ export const formatBalance = (balance: bigint, decimals: number) => {
     trailingZeros: false,
   });
 };
+
+export const isCustomGasToken = () =>
+  import.meta.env.VITE_L1_CUSTOM_GAS_TOKEN_ADDRESS !== zeroAddress;
 
 export const titleCase = (str: string): string => {
   return str.toLowerCase().replace(/\b\w+/g, (word) => {

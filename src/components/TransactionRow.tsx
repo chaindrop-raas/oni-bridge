@@ -6,22 +6,40 @@ import {
   type ParseEventLogsReturnType,
   type WaitForTransactionReceiptReturnType,
 } from "viem";
-import { useBlock } from "wagmi";
+import { useBlock, useTransaction } from "wagmi";
 
-import { erc20Abi, l2ToL1MessagePasserAbi, valueEventAbi } from "../abi";
+import {
+  erc20Abi,
+  l2ToL1MessagePasserAbi,
+  optimismPortalAbi,
+  valueEventAbi,
+} from "../abi";
 import { rollupChain, parentChain } from "../config";
-import { titleCase, txType, blockExplorerURL } from "../utils";
+import {
+  titleCase,
+  txType,
+  blockExplorerURL,
+  isCustomGasToken,
+} from "../utils";
 import { WithdrawalActions } from "./WithdrawalActions";
 import { WithdrawalProgressIcon } from "./icons/WithdrawalProgress";
 
 const parseLogs = (transaction: WaitForTransactionReceiptReturnType) => {
   switch (txType(transaction)) {
     case "deposit":
-      return parseEventLogs({
-        abi: erc20Abi,
-        eventName: "Transfer",
-        logs: transaction.logs,
-      });
+      if (isCustomGasToken()) {
+        return parseEventLogs({
+          abi: erc20Abi,
+          eventName: "Transfer",
+          logs: transaction.logs,
+        });
+      } else {
+        return parseEventLogs({
+          abi: optimismPortalAbi,
+          eventName: "TransactionDeposited",
+          logs: transaction.logs,
+        });
+      }
     case "withdrawal":
       return parseEventLogs({
         abi: l2ToL1MessagePasserAbi,
@@ -106,17 +124,35 @@ export const TransactionRow = ({
   });
   const [formattedDate, setFormattedDate] = useState<string>("Loading...");
   const [formattedTime, setFormattedTime] = useState<string>("Loading...");
+  const [formattedAmount, setFormattedAmount] = useState<string>("Loading...");
 
-  const formattedAmount = `${formatEther(valueFromLogs(transactionLogs))} ${
-    rollupChain.nativeCurrency.symbol
-  }`;
+  const { data } = useTransaction({
+    hash: transaction.transactionHash,
+    chainId,
+    query: {
+      enabled: !isCustomGasToken(),
+    },
+  });
 
   useEffect(() => {
     if (block) {
       setFormattedDate(formatDate(block.timestamp));
       setFormattedTime(formatTime(block.timestamp));
+      if (isCustomGasToken()) {
+        setFormattedAmount(
+          `${formatEther(valueFromLogs(transactionLogs))} ${
+            rollupChain.nativeCurrency.symbol
+          }`
+        );
+      } else {
+        setFormattedAmount(
+          `${formatEther(data?.value ?? 0n)} ${
+            rollupChain.nativeCurrency.symbol
+          }`
+        );
+      }
     }
-  }, [block]);
+  }, [block, data, transactionLogs]);
 
   return (
     <tr className="">

@@ -32,6 +32,7 @@ import {
 import { erc20Abi, optimismPortalAbi } from "./abi";
 import { StatusReturnType } from "./types";
 import { buildFinalizeWithdrawal, buildWithdrawalProof } from "./txs/withdraw";
+import { isCustomGasToken } from "./utils";
 
 export const useIsParentChain = () => {
   const chainId = useChainId();
@@ -46,7 +47,8 @@ export const useCurrentChainBalance = () => {
   const { isParentChain } = useIsParentChain();
   const account = useAccount();
 
-  const config = isParentChain ? { token: token.address } : {};
+  const config =
+    isParentChain && isCustomGasToken() ? { token: token.address } : {};
 
   const { data: blockNumber } = useBlockNumber({ watch: true });
   const { data: balance, queryKey } = useBalance({
@@ -300,12 +302,17 @@ export const useEstimateDepositGas = ({ amount }: { amount: bigint }) => {
       await parentClient
         .estimateGas({
           account,
-          to: optimismPortal.address,
           data: encodeFunctionData({
             abi: optimismPortalAbi,
-            functionName: "depositERC20Transaction",
-            args: [account.address, amount, 0n, 50000n, false, toHex(0)],
+            functionName: isCustomGasToken()
+              ? "depositERC20Transaction"
+              : "depositTransaction",
+            args: isCustomGasToken()
+              ? [account.address, amount, 0n, 50000n, false, account.address]
+              : [account.address, amount, 50000n, false, account.address],
           }),
+          to: optimismPortal.address,
+          value: isCustomGasToken() ? 0n : amount,
         })
         .then(setGas)
         .catch(() => {

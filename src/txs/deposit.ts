@@ -1,8 +1,9 @@
 import { toHex } from "viem";
 
 import { erc20Abi, optimismPortalAbi } from "../abi";
-import { parentClient, token, optimismPortal } from "../config";
-import { WalletClient } from "../types";
+import { parentClient, token, optimismPortal, rollupChain } from "../config";
+import { WalletClient, L1WalletClient } from "../types";
+import { isCustomGasToken } from "../utils";
 
 const simulateApproveTransaction = async (
   walletClient: WalletClient,
@@ -32,7 +33,8 @@ export const approvalTransaction = async (
     hash: approvalHash,
   });
 };
-const simulateDepositTransaction = async (
+
+const simulateCustomTokenDepositTransaction = async (
   walletClient: WalletClient,
   amount: bigint
 ) => {
@@ -46,17 +48,26 @@ const simulateDepositTransaction = async (
 };
 
 export const depositTransaction = async (
-  walletClient: WalletClient,
+  walletClient: L1WalletClient,
   amount: bigint
 ) => {
-  const depositSimulation = await simulateDepositTransaction(
-    walletClient,
-    amount
-  );
-  const depositHash = await walletClient.writeContract(
-    depositSimulation.request
-  );
-  return await parentClient.waitForTransactionReceipt({
-    hash: depositHash,
-  });
+  if (isCustomGasToken()) {
+    const depositSimulation = await simulateCustomTokenDepositTransaction(
+      walletClient,
+      amount
+    );
+    const hash = await walletClient.writeContract(depositSimulation.request);
+    return await parentClient.waitForTransactionReceipt({ hash });
+  } else {
+    const hash = await walletClient.depositTransaction({
+      account: walletClient.account.address,
+      request: {
+        mint: amount,
+        to: walletClient.account.address,
+        gas: 50000n,
+      },
+      targetChain: rollupChain,
+    });
+    return await parentClient.waitForTransactionReceipt({ hash });
+  }
 };
