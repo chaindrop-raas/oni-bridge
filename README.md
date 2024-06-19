@@ -7,10 +7,6 @@ This project offers a flexible and intuitive interface for bridging assets to OP
 - **Versatile Bridging**: Facilitates bridging to and from any OP Stack chain.
 - **Custom Gas Token Compatibility**: Enables bridging to and from chains using custom gas tokens.
 
-## Caveat
-
-Due to Tailwind CSS’s runtime evaluation, custom theme colors need to be set as environment variables loaded before Vite’s environment variables. Consequently, we use `.envrc` for Tailwind-specific variables and `.env` for other application variables. This separation ensures proper loading and application of the custom theme during development.
-
 ## Installation
 
 1. Clone this repository:
@@ -32,7 +28,10 @@ To enable custom gas token bridging, set the `VITE_L1_CUSTOM_GAS_TOKEN_ADDRESS` 
 
 ## Running in Development
 
-1. Ensure `.envrc` and `.env` files are properly set up by copying them from the `.example` files and updating them as needed.
+1. Ensure the `.env` file is properly set up by copying it from `.env.example` and updating them as needed:
+   ```bash
+   cp .env.example .env
+   ```
 2. Start the development server:
    ```bash
    yarn dev
