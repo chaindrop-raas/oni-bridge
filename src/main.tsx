@@ -1,35 +1,20 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { WagmiProvider } from "wagmi";
-import { config, parentChain } from "./config.ts";
-
 import "@rainbow-me/rainbowkit/styles.css";
+
 import {
   RainbowKitProvider,
   darkTheme,
   lightTheme,
 } from "@rainbow-me/rainbowkit";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { WagmiProvider } from "wagmi";
 
 import App from "./App.tsx";
 import "./base.css";
+import { config, parentChain } from "./config.ts";
 
 const queryClient = new QueryClient();
-
-type ThemeMode = "light" | "dark";
-
-const accentColor = (mode: ThemeMode = "light") => {
-  const lightColor = import.meta.env.VITE_BRIDGE_ACCENT_COLOR ?? "#FF0000";
-  const darkColor = import.meta.env.VITE_BRIDGE_ACCENT_COLOR_DARK;
-  return mode === "light" || !darkColor ? lightColor : darkColor;
-};
-
-const accentColorForeground = (mode: ThemeMode = "light") => {
-  const lightColor =
-    import.meta.env.VITE_BRIDGE_ACCENT_COLOR_FOREGROUND ?? "#FFFFFF";
-  const darkColor = import.meta.env.VITE_BRIDGE_ACCENT_COLOR_FOREGROUND_DARK;
-  return mode === "light" || !darkColor ? lightColor : darkColor;
-};
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -41,14 +26,14 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           theme={{
             lightMode: lightTheme({
               borderRadius: "medium",
-              accentColor: accentColor(),
-              accentColorForeground: accentColorForeground(),
+              accentColor: "var(--color-accent)",
+              accentColorForeground: "var(--color-accent-fg)",
               overlayBlur: "small",
             }),
             darkMode: darkTheme({
               borderRadius: "medium",
-              accentColor: accentColor("dark"),
-              accentColorForeground: accentColorForeground("dark"),
+              accentColor: "var(--color-accent-dark)",
+              accentColorForeground: "var(--color-accent-fg-dark)",
               overlayBlur: "small",
             }),
           }}

@@ -27,8 +27,7 @@ export const DepositModal = ({
   const { gas: gasEstimate } = useEstimateDepositGas({ amount });
   const [buttonEnabled, setButtonEnabled] = useState(true);
   const buttonStyle = clsx(
-    "border-accent text-accent dark:border-accent-dark dark:text-accent-dark",
-    "text-xs rounded-[4px] border w-full py-3",
+    "text-xs rounded-[4px] border w-full py-3 border-accent text-accent",
     "disabled:bg-faded disabled:text-subdued disabled:border-none disabled:cursor-not-allowed"
   );
 
