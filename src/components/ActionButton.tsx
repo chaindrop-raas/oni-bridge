@@ -87,8 +87,7 @@ export const ActionButton = ({
         onClick={openConnectModal}
         className={clsx(
           "w-full rounded-[4px] py-3 px-4 text-sm",
-          "bg-accent dark:bg-accent-dark",
-          "text-accent-fg dark:text-accent-fg-dark",
+          "bg-accent text-accent-fg",
           "flex flex-row items-center justify-center gap-1"
         )}
       >

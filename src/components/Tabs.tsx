@@ -17,9 +17,7 @@ export const Tabs = ({
   const classesForTab = (mode: BridgeMode) => {
     return clsx(
       "w-full border-b-2 text-center text-xl py-2 hover:opacity-75",
-      bridgeMode === mode
-        ? "border-accent dark:border-accent-dark"
-        : "border-faded text-subdued"
+      bridgeMode === mode ? "border-accent" : "border-faded text-subdued"
     );
   };
 

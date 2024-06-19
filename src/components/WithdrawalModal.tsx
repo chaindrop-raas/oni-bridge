@@ -65,7 +65,7 @@ export const WithdrawalModal = ({
                   <a
                     href={blockExplorerURL(transaction)}
                     target="_blank"
-                    className="text-accent dark:text-accent-dark text-xs flex flex-row gap-1 items-center"
+                    className="text-accent text-xs flex flex-row gap-1 items-center"
                   >
                     See transaction
                     <ExternalLinkIcon />

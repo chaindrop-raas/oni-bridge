@@ -18,9 +18,20 @@ interface ImportMetaEnv {
 
   readonly VITE_L2_ICON_URL: string;
   readonly VITE_L2_ICON_BACKGROUND_COLOR: string;
+
   readonly VITE_BRIDGE_LOGO_URL: string;
+
   readonly VITE_BRIDGE_ACCENT_COLOR: string;
   readonly VITE_BRIDGE_ACCENT_COLOR_DARK: string;
   readonly VITE_BRIDGE_ACCENT_COLOR_FOREGROUND: string;
   readonly VITE_BRIDGE_ACCENT_COLOR_FOREGROUND_DARK: string;
+  readonly VITE_BRIDGE_BACKGROUND_COLOR: string;
+  readonly VITE_BRIDGE_BACKGROUND_COLOR_DARK: string;
+  readonly VITE_BRIDGE_FADED_COLOR: string;
+  readonly VITE_BRIDGE_FADED_COLOR_DARK: string;
+  readonly VITE_BRIDGE_FOREGROUND_COLOR: string;
+  readonly VITE_BRIDGE_FOREGROUND_COLOR_DARK: string;
+  readonly VITE_BRIDGE_GROUPING_COLOR: string;
+  readonly VITE_BRIDGE_GROUPING_COLOR_DARK: string;
+  readonly VITE_BRIDGE_SUBDUED_COLOR: string;
 }
