@@ -68,8 +68,10 @@ export const ActionButton = ({
   if (buttonMode === "network-error") {
     return (
       <button
-        onClick={() => {
-          walletClient?.switchChain({ id: chainForMode.id });
+        onClick={async () => {
+          await walletClient?.addChain({ chain: chainForMode }).finally(() => {
+            walletClient?.switchChain({ id: chainForMode.id });
+          });
         }}
         className={clsx(
           "w-full rounded-[4px] py-3 px-4 text-sm",
