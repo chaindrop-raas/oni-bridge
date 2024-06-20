@@ -1,4 +1,6 @@
-### Chaindrop OP Stack Bridge Interface
+![An Oni guards a bridge built using traditional Kigumi techniques](./oni-bridge.jpg)
+
+# Oni: an OP Stack Bridge Interface
 
 This project offers a flexible and intuitive interface for bridging assets to OP Stack rollups. It supports both standard ETH-based rollups and chains with custom gas tokens. For detailed information on custom gas tokens in the OP Stack, see the official [custom gas token docs](https://docs.optimism.io/stack/protocol/features/custom-gas-token).
 
