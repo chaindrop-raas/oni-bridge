@@ -10,6 +10,7 @@ import {
   type UseWalletClientReturnType,
 } from "wagmi";
 import {
+  WalletClient,
   encodeFunctionData,
   toHex,
   type Hex,
@@ -30,9 +31,9 @@ import {
   publicActionsL2,
 } from "viem/op-stack";
 import { erc20Abi, optimismPortalAbi } from "./abi";
-import { StatusReturnType } from "./types";
+import type { StatusReturnType, TransactionStore } from "./types";
 import { buildFinalizeWithdrawal, buildWithdrawalProof } from "./txs/withdraw";
-import { isCustomGasToken } from "./utils";
+import { getBridgeId, isCustomGasToken } from "./utils";
 
 export const useIsParentChain = () => {
   const chainId = useChainId();
@@ -240,15 +241,45 @@ export const useTransactionStorage = () => {
         : val
     );
 
-  const [transactions, setTransactions] = useLocalStorage<
-    WaitForTransactionReceiptReturnType[]
-  >("transactions", [], { serializer, deserializer });
+  const [transactionStore, setTransactionStore] =
+    useLocalStorage<TransactionStore>(
+      "bridge.transactions",
+      {},
+      { serializer, deserializer }
+    );
 
-  const addTransaction = (transaction: WaitForTransactionReceiptReturnType) => {
-    setTransactions([transaction, ...transactions]);
+  const addTransaction = (
+    walletClient: WalletClient,
+    transaction: WaitForTransactionReceiptReturnType
+  ) => {
+    const address = walletClient.account?.address;
+    if (!address) return;
+
+    const bridgeId = getBridgeId();
+    // shallow copy of the store
+    const updatedStore = { ...transactionStore };
+
+    if (!updatedStore[address]) {
+      // No entry for address, create one and add the bridgeId and transaction
+      updatedStore[address] = { [bridgeId]: [transaction] };
+    } else if (!updatedStore[address][bridgeId]) {
+      // Entry exists for address but not for this bridgeId, create one and add the transaction
+      updatedStore[address] = {
+        ...updatedStore[address],
+        [bridgeId]: [transaction],
+      };
+    } else {
+      // Entry exists for both address and bridgeId, add the transaction
+      updatedStore[address][bridgeId] = [
+        transaction,
+        ...updatedStore[address][bridgeId],
+      ];
+    }
+
+    setTransactionStore(updatedStore);
   };
 
-  return { transactions, addTransaction };
+  return { transactionStore, addTransaction };
 };
 
 export const useEstimateApproveGas = ({ amount }: { amount: bigint }) => {

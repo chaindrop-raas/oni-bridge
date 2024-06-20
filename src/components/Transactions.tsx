@@ -1,5 +1,8 @@
-import { TransactionReceipt } from "viem";
+import { useWalletClient } from "wagmi";
+
 import { TransactionRow } from "./TransactionRow";
+import type { TransactionStore } from "../types";
+import { getTransactions } from "../utils";
 
 const ThCell = ({ children }: { children: React.ReactElement | string }) => {
   return (
@@ -13,13 +16,17 @@ const ThCell = ({ children }: { children: React.ReactElement | string }) => {
 };
 
 export const Transactions = ({
-  transactions,
+  transactionStore,
 }: {
-  transactions: TransactionReceipt[];
+  transactionStore: TransactionStore;
 }) => {
-  if (transactions.length === 0) {
-    return null;
-  }
+  const { data: walletClient } = useWalletClient();
+
+  const address = walletClient?.account?.address;
+  if (!address) return;
+
+  const transactions = getTransactions(transactionStore, address);
+  if (transactions.length === 0) return;
 
   return (
     <>

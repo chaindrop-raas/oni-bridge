@@ -3,16 +3,23 @@ import {
   getAddress,
   type WaitForTransactionReceiptReturnType,
   zeroAddress,
+  Address,
 } from "viem";
 
 import {
   optimismPortal,
+  parentChain,
   parentClient,
   rollupChain,
   rollupClient,
   token,
 } from "./config";
-import type { StatusReturnType, TransactionType } from "./types";
+import type {
+  BridgeId,
+  StatusReturnType,
+  TransactionStore,
+  TransactionType,
+} from "./types";
 
 export const formatBalance = (balance: bigint, decimals: number) => {
   return format([balance, decimals], {
@@ -71,4 +78,16 @@ export const statusStep = (status: StatusReturnType) => {
     default:
       return 0;
   }
+};
+
+export const getBridgeId = (): BridgeId => {
+  return `${parentChain.id}:${rollupChain.id}`;
+};
+
+export const getTransactions = (
+  transactionStore: TransactionStore,
+  address: Address
+) => {
+  const bridgeId = getBridgeId();
+  return (transactionStore[address] ?? {})[bridgeId] ?? [];
 };
