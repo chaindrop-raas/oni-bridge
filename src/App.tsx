@@ -44,7 +44,7 @@ function App() {
   const [acknowledgementOne, setAcknowledgementOne] = useState(false);
   const [acknowledgementTwo, setAcknowledgementTwo] = useState(false);
   const [bridgeMode, setBridgeMode] = useState<BridgeMode>("deposit");
-  const { transactions, addTransaction } = useTransactionStorage();
+  const { transactionStore, addTransaction } = useTransactionStorage();
   const { isParentChain, isChildChain } = useIsParentChain();
 
   const logoUrl = import.meta.env.VITE_BRIDGE_LOGO_URL;
@@ -103,19 +103,19 @@ function App() {
   const approvalFn = async (walletClient: WalletClient, amount: bigint) => {
     const l1WalletClient = walletClient.extend(walletActionsL1());
     const transaction = await approvalTransaction(l1WalletClient, amount);
-    addTransaction(transaction);
+    addTransaction(walletClient, transaction);
   };
 
   const depositFn = async (walletClient: WalletClient, amount: bigint) => {
     const l1WalletClient = walletClient.extend(walletActionsL1());
     const transaction = await depositTransaction(l1WalletClient, amount);
-    addTransaction(transaction);
+    addTransaction(walletClient, transaction);
   };
 
   const withdrawFn = async (walletClient: WalletClient, amount: bigint) => {
     const l2WalletClient = walletClient.extend(walletActionsL2());
     const transaction = await initiateWithdrawal(amount, l2WalletClient);
-    addTransaction(transaction);
+    addTransaction(walletClient, transaction);
   };
 
   const onSubmit: SubmitHandler<Inputs> = async ({ amount: etherAmount }) => {
@@ -248,7 +248,7 @@ function App() {
                   />
                 </div>
                 <div className="w-full m-auto max-w-screen-body flex flex-col gap-4 px-2 pt-6 lg:pt-0">
-                  <Transactions transactions={transactions} />
+                  <Transactions transactionStore={transactionStore} />
                 </div>
               </div>
             </div>

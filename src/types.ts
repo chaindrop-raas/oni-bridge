@@ -1,4 +1,5 @@
-import { createPublicClient, Account, Chain } from "viem";
+import { createPublicClient } from "viem";
+import type { Account, Address, Chain } from "viem";
 import { getWithdrawalStatus } from "viem/op-stack";
 import {
   PublicActionsL1,
@@ -7,6 +8,7 @@ import {
   WalletActionsL2,
 } from "viem/op-stack";
 import { UseWalletClientReturnType } from "wagmi";
+import type { WaitForTransactionReceiptReturnType } from "viem";
 import { rollupChain } from "./config";
 
 type MakeKeyRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
@@ -35,6 +37,15 @@ export type L2WalletClient = WalletClient &
   WalletActionsL2<ChainWithExplorer, Account>;
 
 export type BridgeMode = "deposit" | "withdraw";
+
+// A BridgeId is the combination of the parent chain id and the rollup chain id
+export type BridgeId = `${number}:${number}`;
+
+export type TransactionStore = {
+  [address: Address]: {
+    [bridgeId: BridgeId]: WaitForTransactionReceiptReturnType[];
+  };
+};
 
 export type StatusReturnType =
   | Awaited<ReturnType<typeof getWithdrawalStatus>>
