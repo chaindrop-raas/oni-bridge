@@ -69,8 +69,10 @@ export const ActionButton = ({
     return (
       <button
         onClick={async () => {
-          await walletClient?.addChain({ chain: chainForMode }).finally(() => {
-            walletClient?.switchChain({ id: chainForMode.id });
+          await walletClient?.switchChain({ id: chainForMode.id }).catch(() => {
+            walletClient?.addChain({ chain: chainForMode }).finally(() => {
+              walletClient?.switchChain({ id: chainForMode.id });
+            });
           });
         }}
         className={clsx(
