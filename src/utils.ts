@@ -4,6 +4,8 @@ import {
   type WaitForTransactionReceiptReturnType,
   zeroAddress,
   Address,
+  WalletClient,
+  Chain,
 } from "viem";
 
 import {
@@ -90,4 +92,30 @@ export const getTransactions = (
 ) => {
   const bridgeId = getBridgeId();
   return (transactionStore[address] ?? {})[bridgeId] ?? [];
+};
+
+/**
+ * Attempts to switch the current wallet's chain to the specified chain.
+ * If the switch fails due to user rejection (error 4001), the error is ignored.
+ * For other errors, the function attempts to add the chain and retry the switch.
+ * This function retries critical operations to handle transient issues.
+ *
+ * @param walletClient - The wallet client used for chain operations.
+ * @param chain - The target chain information to switch to.
+ * @returns A promise that resolves when the chain switch is successful, or rejects with an error.
+ */
+export const ensureChainSwitch = async (
+  walletClient: WalletClient,
+  chain: Chain
+): Promise<void> => {
+  await walletClient.switchChain({ id: chain.id }).catch(async (error) => {
+    if (error.code === 4001) {
+      // User rejected the switch, ignore this error.
+      return;
+    }
+
+    // Attempt to add the chain and retry switching.
+    await walletClient.addChain({ chain });
+    await walletClient.switchChain({ id: chain.id });
+  });
 };

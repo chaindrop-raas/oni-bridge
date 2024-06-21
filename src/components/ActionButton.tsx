@@ -7,6 +7,7 @@ import { parentChain, rollupChain } from "../config";
 import { useIsParentChain } from "../hooks";
 import { BridgeMode } from "../types";
 import { WalletIcon } from "./icons";
+import { ensureChainSwitch } from "../utils";
 
 type ButtonMode =
   | "approve"
@@ -69,14 +70,9 @@ export const ActionButton = ({
     return (
       <button
         onClick={async () => {
-          await walletClient
-            ?.switchChain({ id: chainForMode.id })
-            .catch((e) => {
-              if (e.code === 4001) return;
-              walletClient?.addChain({ chain: chainForMode }).finally(() => {
-                walletClient?.switchChain({ id: chainForMode.id });
-              });
-            });
+          if (walletClient) {
+            ensureChainSwitch(walletClient, chainForMode);
+          }
         }}
         className={clsx(
           "w-full rounded-[4px] py-3 px-4 text-sm",
