@@ -16,7 +16,7 @@ import {
   type Hex,
   type WaitForTransactionReceiptReturnType,
 } from "viem";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocalStorage } from "usehooks-ts";
 import {
   optimismPortal,
@@ -207,54 +207,24 @@ export const useGetWithdrawalStatus = (
   isLoading: boolean;
   status: StatusReturnType;
 } => {
-  const [status, setStatus] = useState<StatusReturnType>("retrieving-status");
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-
-    const activeStatuses = [
-      "waiting-to-prove",
-      "ready-to-prove",
-      "waiting-to-finalize",
-      "ready-to-finalize",
-    ];
-
-    const fetchStatus = async () => {
-      setIsLoading(true);
-      const withdrawalStatus = await parentClient.getWithdrawalStatus({
+  const activeStatuses = [
+    "waiting-to-prove",
+    "ready-to-prove",
+    "waiting-to-finalize",
+    "ready-to-finalize",
+  ];
+  const { data: status, isLoading } = useQuery({
+    queryKey: ["transactions", transaction.transactionHash],
+    queryFn: () =>
+      parentClient.getWithdrawalStatus({
         receipt: transaction,
         targetChain: rollupChain,
-      });
-      setStatus(withdrawalStatus);
-      setIsLoading(false);
+      }),
+    refetchInterval: ({ state }) =>
+      state.data && activeStatuses.includes(state.data) && 5000,
+  });
 
-      // Check if the current status is one of the active statuses.
-      if (activeStatuses.includes(withdrawalStatus)) {
-        if (!intervalId) {
-          // Set up an interval if the status requires it.
-          intervalId = setInterval(fetchStatus, 5000); // Re-check every 5 seconds.
-        }
-      } else {
-        // Clear the interval if the status no longer requires updates.
-        if (intervalId) {
-          clearInterval(intervalId);
-        }
-      }
-    };
-
-    // Initial fetch of the status.
-    fetchStatus();
-
-    // Cleanup function to clear the interval when the component unmounts or transaction changes.
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-    };
-  }, [transaction]);
-
-  return { isLoading, status };
+  return { isLoading, status: status ?? "retrieving-status" };
 };
 
 export const useTransactionStorage = () => {
