@@ -211,6 +211,15 @@ export const useGetWithdrawalStatus = (
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
+    const activeStatuses = [
+      "waiting-to-prove",
+      "ready-to-prove",
+      "waiting-to-finalize",
+      "ready-to-finalize",
+    ];
+
     const fetchStatus = async () => {
       setIsLoading(true);
       const withdrawalStatus = await parentClient.getWithdrawalStatus({
@@ -219,8 +228,30 @@ export const useGetWithdrawalStatus = (
       });
       setStatus(withdrawalStatus);
       setIsLoading(false);
+
+      // Check if the current status is one of the active statuses.
+      if (activeStatuses.includes(withdrawalStatus)) {
+        if (!intervalId) {
+          // Set up an interval if the status requires it.
+          intervalId = setInterval(fetchStatus, 5000); // Re-check every 5 seconds.
+        }
+      } else {
+        // Clear the interval if the status no longer requires updates.
+        if (intervalId) {
+          clearInterval(intervalId);
+        }
+      }
     };
+
+    // Initial fetch of the status.
     fetchStatus();
+
+    // Cleanup function to clear the interval when the component unmounts or transaction changes.
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
   }, [transaction]);
 
   return { isLoading, status };
