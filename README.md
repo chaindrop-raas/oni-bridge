@@ -13,11 +13,11 @@ This project offers a flexible and intuitive interface for bridging assets to OP
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/chaindrop-raas/op-custom-gas-token-bridge.git
+   git clone https://github.com/chaindrop-raas/oni-bridge.git
    ```
 2. Navigate to the project directory:
    ```bash
-   cd op-custom-gas-token-bridge
+   cd oni-bridge
    ```
 3. Install dependencies:
    ```bash
@@ -53,4 +53,4 @@ We welcome contributions! Please submit pull requests or open issues for any bug
 
 This project is released under the Creative Commons BY-SA 4.0 license. You are free to use, adapt, and repurpose the code, provided you give appropriate credit, provide a link to the license, and indicate if changes were made. Redistribution of your contributions must be under the same license. We encourage users to innovate and expand upon our work while ensuring proper attribution.
 
-For more details, see the [LICENSE](https://github.com/chaindrop-raas/op-custom-gas-token-bridge/blob/main/LICENSE) file or read more on the [Creative Commons website](https://creativecommons.org/licenses/by-sa/4.0/).
+For more details, see the [LICENSE](https://github.com/chaindrop-raas/oni-bridge/blob/main/LICENSE) file or read more on the [Creative Commons website](https://creativecommons.org/licenses/by-sa/4.0/).
