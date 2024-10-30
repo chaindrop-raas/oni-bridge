@@ -62,6 +62,11 @@ export const rollupChain = defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
+    disputeGameFactory: {
+      [parentChain.id]: {
+        address: import.meta.env.VITE_DISPUTE_GAME_FACTORY_ADDRESS,
+      },
+    },
     l2OutputOracle: {
       [parentChain.id]: {
         address: import.meta.env.VITE_L2_OUTPUT_ORACLE_ADDRESS,
